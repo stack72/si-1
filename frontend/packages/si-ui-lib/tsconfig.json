@@ -1,0 +1,14 @@
+{
+  "extends": "../../config/tsconfig/tsconfig.browser.json",
+  "compilerOptions": {
+    "baseUrl": ".",
+    "types": ["histoire/vue"],
+    "composite": true
+  },
+  "include": [
+    "src/**/*.ts",
+    "src/**/*.d.ts",
+    "src/**/*.tsx",
+    "src/**/*.vue"
+  ],
+}

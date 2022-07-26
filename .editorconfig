@@ -1,0 +1,17 @@
+root = true
+
+# set defaults
+[*]
+end_of_line = lf
+insert_final_newline = true
+indent_style = space
+indent_size = 2
+
+# rust default is 4 spaces
+[*.rs]
+indent_size = 4
+
+# Makefiles use tabs
+[Makefile]
+indent_style = tab
+

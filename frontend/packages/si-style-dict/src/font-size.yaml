@@ -1,0 +1,7 @@
+
+size:
+  font:
+    small:  { value: 10px }
+    medium: { value: 16px }
+    large:  { value: 24px }
+    base:   { value: "{size.font.medium.value}" }

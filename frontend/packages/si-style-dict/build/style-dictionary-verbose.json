@@ -1,0 +1,1231 @@
+{
+  "size": {
+    "font": {
+      "small": {
+        "value": "10px",
+        "filePath": "src/font-size.yaml",
+        "isSource": true,
+        "original": {
+          "value": "10px"
+        },
+        "name": "small",
+        "attributes": {},
+        "path": [
+          "size",
+          "font",
+          "small"
+        ]
+      },
+      "medium": {
+        "value": "16px",
+        "filePath": "src/font-size.yaml",
+        "isSource": true,
+        "original": {
+          "value": "16px"
+        },
+        "name": "medium",
+        "attributes": {},
+        "path": [
+          "size",
+          "font",
+          "medium"
+        ]
+      },
+      "large": {
+        "value": "24px",
+        "filePath": "src/font-size.yaml",
+        "isSource": true,
+        "original": {
+          "value": "24px"
+        },
+        "name": "large",
+        "attributes": {},
+        "path": [
+          "size",
+          "font",
+          "large"
+        ]
+      },
+      "base": {
+        "value": "16px",
+        "filePath": "src/font-size.yaml",
+        "isSource": true,
+        "original": {
+          "value": "{size.font.medium.value}"
+        },
+        "name": "base",
+        "attributes": {},
+        "path": [
+          "size",
+          "font",
+          "base"
+        ]
+      }
+    }
+  },
+  "colors": {
+    "black": {
+      "value": "#000000",
+      "filePath": "src/colors.js",
+      "isSource": true,
+      "original": {
+        "value": "#000000"
+      },
+      "name": "black",
+      "attributes": {},
+      "path": [
+        "colors",
+        "black"
+      ]
+    },
+    "white": {
+      "value": "#FFFFFF",
+      "filePath": "src/colors.js",
+      "isSource": true,
+      "original": {
+        "value": "#FFFFFF"
+      },
+      "name": "white",
+      "attributes": {},
+      "path": [
+        "colors",
+        "white"
+      ]
+    },
+    "neutral": {
+      "50": {
+        "value": "#FAFAFA",
+        "filePath": "src/colors.js",
+        "isSource": true,
+        "original": {
+          "value": "#FAFAFA"
+        },
+        "name": "50",
+        "attributes": {},
+        "path": [
+          "colors",
+          "neutral",
+          "50"
+        ]
+      },
+      "100": {
+        "value": "#F5F5F5",
+        "filePath": "src/colors.js",
+        "isSource": true,
+        "original": {
+          "value": "#F5F5F5"
+        },
+        "name": "100",
+        "attributes": {},
+        "path": [
+          "colors",
+          "neutral",
+          "100"
+        ]
+      },
+      "200": {
+        "value": "#E5E5E5",
+        "filePath": "src/colors.js",
+        "isSource": true,
+        "original": {
+          "value": "#E5E5E5"
+        },
+        "name": "200",
+        "attributes": {},
+        "path": [
+          "colors",
+          "neutral",
+          "200"
+        ]
+      },
+      "300": {
+        "value": "#D4D4D4",
+        "filePath": "src/colors.js",
+        "isSource": true,
+        "original": {
+          "value": "#D4D4D4"
+        },
+        "name": "300",
+        "attributes": {},
+        "path": [
+          "colors",
+          "neutral",
+          "300"
+        ]
+      },
+      "400": {
+        "value": "#A3A3A3",
+        "filePath": "src/colors.js",
+        "isSource": true,
+        "original": {
+          "value": "#A3A3A3"
+        },
+        "name": "400",
+        "attributes": {},
+        "path": [
+          "colors",
+          "neutral",
+          "400"
+        ]
+      },
+      "500": {
+        "value": "#737373",
+        "filePath": "src/colors.js",
+        "isSource": true,
+        "original": {
+          "value": "#737373"
+        },
+        "name": "500",
+        "attributes": {},
+        "path": [
+          "colors",
+          "neutral",
+          "500"
+        ]
+      },
+      "600": {
+        "value": "#525252",
+        "filePath": "src/colors.js",
+        "isSource": true,
+        "original": {
+          "value": "#525252"
+        },
+        "name": "600",
+        "attributes": {},
+        "path": [
+          "colors",
+          "neutral",
+          "600"
+        ]
+      },
+      "700": {
+        "value": "#404040",
+        "filePath": "src/colors.js",
+        "isSource": true,
+        "original": {
+          "value": "#404040"
+        },
+        "name": "700",
+        "attributes": {},
+        "path": [
+          "colors",
+          "neutral",
+          "700"
+        ]
+      },
+      "800": {
+        "value": "#333333",
+        "filePath": "src/colors.js",
+        "isSource": true,
+        "original": {
+          "value": "#333333"
+        },
+        "name": "800",
+        "attributes": {},
+        "path": [
+          "colors",
+          "neutral",
+          "800"
+        ]
+      },
+      "900": {
+        "value": "#262626",
+        "filePath": "src/colors.js",
+        "isSource": true,
+        "original": {
+          "value": "#262626"
+        },
+        "name": "900",
+        "attributes": {},
+        "path": [
+          "colors",
+          "neutral",
+          "900"
+        ]
+      },
+      "lightest": {
+        "value": "#FAFAFA",
+        "filePath": "src/colors.js",
+        "isSource": true,
+        "original": {
+          "value": "{colors.neutral.50.value}"
+        },
+        "name": "lightest",
+        "attributes": {},
+        "path": [
+          "colors",
+          "neutral",
+          "lightest"
+        ]
+      },
+      "light": {
+        "value": "#D4D4D4",
+        "filePath": "src/colors.js",
+        "isSource": true,
+        "original": {
+          "value": "{colors.neutral.300.value}"
+        },
+        "name": "light",
+        "attributes": {},
+        "path": [
+          "colors",
+          "neutral",
+          "light"
+        ]
+      },
+      "base": {
+        "value": "#737373",
+        "filePath": "src/colors.js",
+        "isSource": true,
+        "original": {
+          "value": "{colors.neutral.500.value}"
+        },
+        "name": "base",
+        "attributes": {},
+        "path": [
+          "colors",
+          "neutral",
+          "base"
+        ]
+      },
+      "dark": {
+        "value": "#404040",
+        "filePath": "src/colors.js",
+        "isSource": true,
+        "original": {
+          "value": "{colors.neutral.700.value}"
+        },
+        "name": "dark",
+        "attributes": {},
+        "path": [
+          "colors",
+          "neutral",
+          "dark"
+        ]
+      },
+      "darkest": {
+        "value": "#262626",
+        "filePath": "src/colors.js",
+        "isSource": true,
+        "original": {
+          "value": "{colors.neutral.900.value}"
+        },
+        "name": "darkest",
+        "attributes": {},
+        "path": [
+          "colors",
+          "neutral",
+          "darkest"
+        ]
+      }
+    },
+    "action": {
+      "50": {
+        "value": "#EFF6FE",
+        "filePath": "src/colors.js",
+        "isSource": true,
+        "original": {
+          "value": "#EFF6FE"
+        },
+        "name": "50",
+        "attributes": {},
+        "path": [
+          "colors",
+          "action",
+          "50"
+        ]
+      },
+      "100": {
+        "value": "#E2F3FE",
+        "filePath": "src/colors.js",
+        "isSource": true,
+        "original": {
+          "value": "#E2F3FE"
+        },
+        "name": "100",
+        "attributes": {},
+        "path": [
+          "colors",
+          "action",
+          "100"
+        ]
+      },
+      "200": {
+        "value": "#B2E0FF",
+        "filePath": "src/colors.js",
+        "isSource": true,
+        "original": {
+          "value": "#B2E0FF"
+        },
+        "name": "200",
+        "attributes": {},
+        "path": [
+          "colors",
+          "action",
+          "200"
+        ]
+      },
+      "300": {
+        "value": "#B2E0FF",
+        "filePath": "src/colors.js",
+        "isSource": true,
+        "original": {
+          "value": "#B2E0FF"
+        },
+        "name": "300",
+        "attributes": {},
+        "path": [
+          "colors",
+          "action",
+          "300"
+        ]
+      },
+      "400": {
+        "value": "#0E9BFF",
+        "filePath": "src/colors.js",
+        "isSource": true,
+        "original": {
+          "value": "#0E9BFF"
+        },
+        "name": "400",
+        "attributes": {},
+        "path": [
+          "colors",
+          "action",
+          "400"
+        ]
+      },
+      "500": {
+        "value": "#2F80ED",
+        "filePath": "src/colors.js",
+        "isSource": true,
+        "original": {
+          "value": "#2F80ED"
+        },
+        "name": "500",
+        "attributes": {},
+        "path": [
+          "colors",
+          "action",
+          "500"
+        ]
+      },
+      "600": {
+        "value": "#1975DC",
+        "filePath": "src/colors.js",
+        "isSource": true,
+        "original": {
+          "value": "#1975DC"
+        },
+        "name": "600",
+        "attributes": {},
+        "path": [
+          "colors",
+          "action",
+          "600"
+        ]
+      },
+      "700": {
+        "value": "#3B65A8",
+        "filePath": "src/colors.js",
+        "isSource": true,
+        "original": {
+          "value": "#3B65A8"
+        },
+        "name": "700",
+        "attributes": {},
+        "path": [
+          "colors",
+          "action",
+          "700"
+        ]
+      },
+      "800": {
+        "value": "#395080",
+        "filePath": "src/colors.js",
+        "isSource": true,
+        "original": {
+          "value": "#395080"
+        },
+        "name": "800",
+        "attributes": {},
+        "path": [
+          "colors",
+          "action",
+          "800"
+        ]
+      },
+      "900": {
+        "value": "#424F6B",
+        "filePath": "src/colors.js",
+        "isSource": true,
+        "original": {
+          "value": "#424F6B"
+        },
+        "name": "900",
+        "attributes": {},
+        "path": [
+          "colors",
+          "action",
+          "900"
+        ]
+      },
+      "lightest": {
+        "value": "#EFF6FE",
+        "filePath": "src/colors.js",
+        "isSource": true,
+        "original": {
+          "value": "{colors.action.50.value}"
+        },
+        "name": "lightest",
+        "attributes": {},
+        "path": [
+          "colors",
+          "action",
+          "lightest"
+        ]
+      },
+      "light": {
+        "value": "#B2E0FF",
+        "filePath": "src/colors.js",
+        "isSource": true,
+        "original": {
+          "value": "{colors.action.300.value}"
+        },
+        "name": "light",
+        "attributes": {},
+        "path": [
+          "colors",
+          "action",
+          "light"
+        ]
+      },
+      "base": {
+        "value": "#2F80ED",
+        "filePath": "src/colors.js",
+        "isSource": true,
+        "original": {
+          "value": "{colors.action.500.value}"
+        },
+        "name": "base",
+        "attributes": {},
+        "path": [
+          "colors",
+          "action",
+          "base"
+        ]
+      },
+      "dark": {
+        "value": "#3B65A8",
+        "filePath": "src/colors.js",
+        "isSource": true,
+        "original": {
+          "value": "{colors.action.700.value}"
+        },
+        "name": "dark",
+        "attributes": {},
+        "path": [
+          "colors",
+          "action",
+          "dark"
+        ]
+      },
+      "darkest": {
+        "value": "#424F6B",
+        "filePath": "src/colors.js",
+        "isSource": true,
+        "original": {
+          "value": "{colors.action.900.value}"
+        },
+        "name": "darkest",
+        "attributes": {},
+        "path": [
+          "colors",
+          "action",
+          "darkest"
+        ]
+      }
+    },
+    "success": {
+      "50": {
+        "value": "#F0FDF4",
+        "filePath": "src/colors.js",
+        "isSource": true,
+        "original": {
+          "value": "#F0FDF4"
+        },
+        "name": "50",
+        "attributes": {},
+        "path": [
+          "colors",
+          "success",
+          "50"
+        ]
+      },
+      "100": {
+        "value": "#DCFCE7",
+        "filePath": "src/colors.js",
+        "isSource": true,
+        "original": {
+          "value": "#DCFCE7"
+        },
+        "name": "100",
+        "attributes": {},
+        "path": [
+          "colors",
+          "success",
+          "100"
+        ]
+      },
+      "200": {
+        "value": "#BBF7D0",
+        "filePath": "src/colors.js",
+        "isSource": true,
+        "original": {
+          "value": "#BBF7D0"
+        },
+        "name": "200",
+        "attributes": {},
+        "path": [
+          "colors",
+          "success",
+          "200"
+        ]
+      },
+      "300": {
+        "value": "#86EFAC",
+        "filePath": "src/colors.js",
+        "isSource": true,
+        "original": {
+          "value": "#86EFAC"
+        },
+        "name": "300",
+        "attributes": {},
+        "path": [
+          "colors",
+          "success",
+          "300"
+        ]
+      },
+      "400": {
+        "value": "#4ADE80",
+        "filePath": "src/colors.js",
+        "isSource": true,
+        "original": {
+          "value": "#4ADE80"
+        },
+        "name": "400",
+        "attributes": {},
+        "path": [
+          "colors",
+          "success",
+          "400"
+        ]
+      },
+      "500": {
+        "value": "#22C55E",
+        "filePath": "src/colors.js",
+        "isSource": true,
+        "original": {
+          "value": "#22C55E"
+        },
+        "name": "500",
+        "attributes": {},
+        "path": [
+          "colors",
+          "success",
+          "500"
+        ]
+      },
+      "600": {
+        "value": "#16A34A",
+        "filePath": "src/colors.js",
+        "isSource": true,
+        "original": {
+          "value": "#16A34A"
+        },
+        "name": "600",
+        "attributes": {},
+        "path": [
+          "colors",
+          "success",
+          "600"
+        ]
+      },
+      "700": {
+        "value": "#15803D",
+        "filePath": "src/colors.js",
+        "isSource": true,
+        "original": {
+          "value": "#15803D"
+        },
+        "name": "700",
+        "attributes": {},
+        "path": [
+          "colors",
+          "success",
+          "700"
+        ]
+      },
+      "800": {
+        "value": "#166534",
+        "filePath": "src/colors.js",
+        "isSource": true,
+        "original": {
+          "value": "#166534"
+        },
+        "name": "800",
+        "attributes": {},
+        "path": [
+          "colors",
+          "success",
+          "800"
+        ]
+      },
+      "900": {
+        "value": "#14532D",
+        "filePath": "src/colors.js",
+        "isSource": true,
+        "original": {
+          "value": "#14532D"
+        },
+        "name": "900",
+        "attributes": {},
+        "path": [
+          "colors",
+          "success",
+          "900"
+        ]
+      },
+      "lightest": {
+        "value": "#F0FDF4",
+        "filePath": "src/colors.js",
+        "isSource": true,
+        "original": {
+          "value": "{colors.success.50.value}"
+        },
+        "name": "lightest",
+        "attributes": {},
+        "path": [
+          "colors",
+          "success",
+          "lightest"
+        ]
+      },
+      "light": {
+        "value": "#86EFAC",
+        "filePath": "src/colors.js",
+        "isSource": true,
+        "original": {
+          "value": "{colors.success.300.value}"
+        },
+        "name": "light",
+        "attributes": {},
+        "path": [
+          "colors",
+          "success",
+          "light"
+        ]
+      },
+      "base": {
+        "value": "#22C55E",
+        "filePath": "src/colors.js",
+        "isSource": true,
+        "original": {
+          "value": "{colors.success.500.value}"
+        },
+        "name": "base",
+        "attributes": {},
+        "path": [
+          "colors",
+          "success",
+          "base"
+        ]
+      },
+      "dark": {
+        "value": "#15803D",
+        "filePath": "src/colors.js",
+        "isSource": true,
+        "original": {
+          "value": "{colors.success.700.value}"
+        },
+        "name": "dark",
+        "attributes": {},
+        "path": [
+          "colors",
+          "success",
+          "dark"
+        ]
+      },
+      "darkest": {
+        "value": "#14532D",
+        "filePath": "src/colors.js",
+        "isSource": true,
+        "original": {
+          "value": "{colors.success.900.value}"
+        },
+        "name": "darkest",
+        "attributes": {},
+        "path": [
+          "colors",
+          "success",
+          "darkest"
+        ]
+      }
+    },
+    "warning": {
+      "50": {
+        "value": "#FFFBEB",
+        "filePath": "src/colors.js",
+        "isSource": true,
+        "original": {
+          "value": "#FFFBEB"
+        },
+        "name": "50",
+        "attributes": {},
+        "path": [
+          "colors",
+          "warning",
+          "50"
+        ]
+      },
+      "100": {
+        "value": "#FEF3C7",
+        "filePath": "src/colors.js",
+        "isSource": true,
+        "original": {
+          "value": "#FEF3C7"
+        },
+        "name": "100",
+        "attributes": {},
+        "path": [
+          "colors",
+          "warning",
+          "100"
+        ]
+      },
+      "200": {
+        "value": "#FDE68A",
+        "filePath": "src/colors.js",
+        "isSource": true,
+        "original": {
+          "value": "#FDE68A"
+        },
+        "name": "200",
+        "attributes": {},
+        "path": [
+          "colors",
+          "warning",
+          "200"
+        ]
+      },
+      "300": {
+        "value": "#FCD34D",
+        "filePath": "src/colors.js",
+        "isSource": true,
+        "original": {
+          "value": "#FCD34D"
+        },
+        "name": "300",
+        "attributes": {},
+        "path": [
+          "colors",
+          "warning",
+          "300"
+        ]
+      },
+      "400": {
+        "value": "#FBBF24",
+        "filePath": "src/colors.js",
+        "isSource": true,
+        "original": {
+          "value": "#FBBF24"
+        },
+        "name": "400",
+        "attributes": {},
+        "path": [
+          "colors",
+          "warning",
+          "400"
+        ]
+      },
+      "500": {
+        "value": "#F59E0B",
+        "filePath": "src/colors.js",
+        "isSource": true,
+        "original": {
+          "value": "#F59E0B"
+        },
+        "name": "500",
+        "attributes": {},
+        "path": [
+          "colors",
+          "warning",
+          "500"
+        ]
+      },
+      "600": {
+        "value": "#D97706",
+        "filePath": "src/colors.js",
+        "isSource": true,
+        "original": {
+          "value": "#D97706"
+        },
+        "name": "600",
+        "attributes": {},
+        "path": [
+          "colors",
+          "warning",
+          "600"
+        ]
+      },
+      "700": {
+        "value": "#B45309",
+        "filePath": "src/colors.js",
+        "isSource": true,
+        "original": {
+          "value": "#B45309"
+        },
+        "name": "700",
+        "attributes": {},
+        "path": [
+          "colors",
+          "warning",
+          "700"
+        ]
+      },
+      "800": {
+        "value": "#92400E",
+        "filePath": "src/colors.js",
+        "isSource": true,
+        "original": {
+          "value": "#92400E"
+        },
+        "name": "800",
+        "attributes": {},
+        "path": [
+          "colors",
+          "warning",
+          "800"
+        ]
+      },
+      "900": {
+        "value": "#78350F",
+        "filePath": "src/colors.js",
+        "isSource": true,
+        "original": {
+          "value": "#78350F"
+        },
+        "name": "900",
+        "attributes": {},
+        "path": [
+          "colors",
+          "warning",
+          "900"
+        ]
+      },
+      "lightest": {
+        "value": "#FFFBEB",
+        "filePath": "src/colors.js",
+        "isSource": true,
+        "original": {
+          "value": "{colors.warning.50.value}"
+        },
+        "name": "lightest",
+        "attributes": {},
+        "path": [
+          "colors",
+          "warning",
+          "lightest"
+        ]
+      },
+      "light": {
+        "value": "#FCD34D",
+        "filePath": "src/colors.js",
+        "isSource": true,
+        "original": {
+          "value": "{colors.warning.300.value}"
+        },
+        "name": "light",
+        "attributes": {},
+        "path": [
+          "colors",
+          "warning",
+          "light"
+        ]
+      },
+      "base": {
+        "value": "#F59E0B",
+        "filePath": "src/colors.js",
+        "isSource": true,
+        "original": {
+          "value": "{colors.warning.500.value}"
+        },
+        "name": "base",
+        "attributes": {},
+        "path": [
+          "colors",
+          "warning",
+          "base"
+        ]
+      },
+      "dark": {
+        "value": "#B45309",
+        "filePath": "src/colors.js",
+        "isSource": true,
+        "original": {
+          "value": "{colors.warning.700.value}"
+        },
+        "name": "dark",
+        "attributes": {},
+        "path": [
+          "colors",
+          "warning",
+          "dark"
+        ]
+      },
+      "darkest": {
+        "value": "#78350F",
+        "filePath": "src/colors.js",
+        "isSource": true,
+        "original": {
+          "value": "{colors.warning.900.value}"
+        },
+        "name": "darkest",
+        "attributes": {},
+        "path": [
+          "colors",
+          "warning",
+          "darkest"
+        ]
+      }
+    },
+    "destructive": {
+      "50": {
+        "value": "#FEF2F2",
+        "filePath": "src/colors.js",
+        "isSource": true,
+        "original": {
+          "value": "#FEF2F2"
+        },
+        "name": "50",
+        "attributes": {},
+        "path": [
+          "colors",
+          "destructive",
+          "50"
+        ]
+      },
+      "100": {
+        "value": "#FEE2E2",
+        "filePath": "src/colors.js",
+        "isSource": true,
+        "original": {
+          "value": "#FEE2E2"
+        },
+        "name": "100",
+        "attributes": {},
+        "path": [
+          "colors",
+          "destructive",
+          "100"
+        ]
+      },
+      "200": {
+        "value": "#FECACA",
+        "filePath": "src/colors.js",
+        "isSource": true,
+        "original": {
+          "value": "#FECACA"
+        },
+        "name": "200",
+        "attributes": {},
+        "path": [
+          "colors",
+          "destructive",
+          "200"
+        ]
+      },
+      "300": {
+        "value": "#FCA5A5",
+        "filePath": "src/colors.js",
+        "isSource": true,
+        "original": {
+          "value": "#FCA5A5"
+        },
+        "name": "300",
+        "attributes": {},
+        "path": [
+          "colors",
+          "destructive",
+          "300"
+        ]
+      },
+      "400": {
+        "value": "#F87171",
+        "filePath": "src/colors.js",
+        "isSource": true,
+        "original": {
+          "value": "#F87171"
+        },
+        "name": "400",
+        "attributes": {},
+        "path": [
+          "colors",
+          "destructive",
+          "400"
+        ]
+      },
+      "500": {
+        "value": "#EF4444",
+        "filePath": "src/colors.js",
+        "isSource": true,
+        "original": {
+          "value": "#EF4444"
+        },
+        "name": "500",
+        "attributes": {},
+        "path": [
+          "colors",
+          "destructive",
+          "500"
+        ]
+      },
+      "600": {
+        "value": "#DC2626",
+        "filePath": "src/colors.js",
+        "isSource": true,
+        "original": {
+          "value": "#DC2626"
+        },
+        "name": "600",
+        "attributes": {},
+        "path": [
+          "colors",
+          "destructive",
+          "600"
+        ]
+      },
+      "700": {
+        "value": "#B91C1C",
+        "filePath": "src/colors.js",
+        "isSource": true,
+        "original": {
+          "value": "#B91C1C"
+        },
+        "name": "700",
+        "attributes": {},
+        "path": [
+          "colors",
+          "destructive",
+          "700"
+        ]
+      },
+      "800": {
+        "value": "#991B1B",
+        "filePath": "src/colors.js",
+        "isSource": true,
+        "original": {
+          "value": "#991B1B"
+        },
+        "name": "800",
+        "attributes": {},
+        "path": [
+          "colors",
+          "destructive",
+          "800"
+        ]
+      },
+      "900": {
+        "value": "#7F1D1D",
+        "filePath": "src/colors.js",
+        "isSource": true,
+        "original": {
+          "value": "#7F1D1D"
+        },
+        "name": "900",
+        "attributes": {},
+        "path": [
+          "colors",
+          "destructive",
+          "900"
+        ]
+      },
+      "lightest": {
+        "value": "#FEF2F2",
+        "filePath": "src/colors.js",
+        "isSource": true,
+        "original": {
+          "value": "{colors.destructive.50.value}"
+        },
+        "name": "lightest",
+        "attributes": {},
+        "path": [
+          "colors",
+          "destructive",
+          "lightest"
+        ]
+      },
+      "light": {
+        "value": "#FCA5A5",
+        "filePath": "src/colors.js",
+        "isSource": true,
+        "original": {
+          "value": "{colors.destructive.300.value}"
+        },
+        "name": "light",
+        "attributes": {},
+        "path": [
+          "colors",
+          "destructive",
+          "light"
+        ]
+      },
+      "base": {
+        "value": "#EF4444",
+        "filePath": "src/colors.js",
+        "isSource": true,
+        "original": {
+          "value": "{colors.destructive.500.value}"
+        },
+        "name": "base",
+        "attributes": {},
+        "path": [
+          "colors",
+          "destructive",
+          "base"
+        ]
+      },
+      "dark": {
+        "value": "#B91C1C",
+        "filePath": "src/colors.js",
+        "isSource": true,
+        "original": {
+          "value": "{colors.destructive.700.value}"
+        },
+        "name": "dark",
+        "attributes": {},
+        "path": [
+          "colors",
+          "destructive",
+          "dark"
+        ]
+      },
+      "darkest": {
+        "value": "#7F1D1D",
+        "filePath": "src/colors.js",
+        "isSource": true,
+        "original": {
+          "value": "{colors.destructive.900.value}"
+        },
+        "name": "darkest",
+        "attributes": {},
+        "path": [
+          "colors",
+          "destructive",
+          "darkest"
+        ]
+      }
+    }
+  }
+}

@@ -1,0 +1,21 @@
+{
+  "name": "@si/style-dict",
+  "private": true,
+  "version": "0.0.0",
+  "scripts": {
+    "preinstall": "npx only-allow pnpm",
+    "build": "rimraf build && style-dictionary build"
+  },
+  "devDependencies": {
+    "rimraf": "^3.0.2",
+    "style-dictionary": "^3.7.1",
+    "yaml": "^2.1.1"
+  },
+  "exports": {
+    ".": "./build/style-dictionary-simple.json",
+    "./verbose.json": "./build/style-dictionary-verbose.json",
+    "./css": "./build/_variables.css",
+    "./less": "./build/_variables.less",
+    "./sass": "./build/_variables.sass"
+  }
+}
