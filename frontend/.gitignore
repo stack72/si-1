@@ -2,12 +2,8 @@
 node_modules
 .pnp.*
 .yarn/*
-!.yarn/patches
-!.yarn/plugins
-!.yarn/releases
-!.yarn/sdks
-!.yarn/versions
 
+# built files
 dist
 dist-ssr
 package
@@ -17,6 +13,7 @@ package
 *.pem
 *.local
 
+# tooling cache files
 tsconfig.tsbuildinfo
 
 # debug
@@ -33,9 +30,10 @@ yarn-error.log*
 .env
 !.env.example
 
+# editor-specific configs
+.vscode/*.log
 
-
-# turbo
+# turborepo
 .turbo
 
 # testing

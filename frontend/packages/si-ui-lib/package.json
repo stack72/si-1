@@ -2,7 +2,6 @@
   "name": "@si/ui-lib",
   "private": true,
   "version": "0.0.0",
-  "type": "module",
   "main": "src/index.ts",
   "types": "src/index.ts",
   "exports": {
@@ -13,7 +12,9 @@
     "preinstall": "npx only-allow pnpm",
     "dev": "histoire dev",
     "docs:build": "histoire build",
-    "docs:preview": "histoire preview"
+    "docs:preview": "histoire preview",
+    "eslint": "eslint --ext .ts,.js,.vue src",
+    "eslint:fix": "eslint --ext .ts,.js,.vue src --fix"
   },
   "dependencies": {
     "@si/style-dict": "workspace:*",
@@ -21,6 +22,7 @@
     "vue": "^3.2.37"
   },
   "devDependencies": {
+    "@si/eslint-config": "workspace:*",
     "@tailwindcss/forms": "^0.5.1",
     "@types/lodash-es": "^4.17.6",
     "@typescript-eslint/eslint-plugin": "^5.21.0",

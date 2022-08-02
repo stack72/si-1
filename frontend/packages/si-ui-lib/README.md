@@ -12,6 +12,6 @@ Much to do here and to figure out as we migrate over some of these components an
 HMR should work on these components while working on an actual "app", but you can also work on the components themselves.
 
 ## Scripts
-- `yarn dev` - runs a local dev environment w/ docs site, powered by [Histoire](https://histoire.dev/) (runs on http://127.0.0.1:5173)
-- `yarn docs:build` - builds the histoire site in a format ready to deploy it
-- `yarn docs:preview` - preview the built files from `docs:build`
+- `pnpm dev` - runs a local dev environment w/ docs site, powered by [Histoire](https://histoire.dev/) (runs @ http://127.0.0.1:5173)
+- `pnpm docs:build` - builds the histoire site in a format ready to deploy it
+- `pnpm docs:preview` - preview the built files from `docs:build`

@@ -1,47 +1,51 @@
 <template>
-<Story
-  title="2 - Color Palette"
-  :layout="{ type: 'single' }"
-  icon="carbon:color-palette"
-  responsive-disabled
->
-
-  <div class="color-group">
-    <h2>shades</h2>
-    <div class="color-group__swatches">
-      <template v-for="color in baseColors">
-        <div class="color" :style="{backgroundColor: color.value }">{{color.name}}</div>
-      </template>
-    </div>
-  </div>
-
-  <template v-for="colorGroup, colorGroupName in colorGroups">
+  <Story
+    title="2 - Color Palette"
+    :layout="{ type: 'single' }"
+    icon="carbon:color-palette"
+    responsive-disabled
+  >
     <div class="color-group">
-      <h2>{{ colorGroupName }}</h2>
+      <h2>shades</h2>
       <div class="color-group__swatches">
-        <template v-for="color in colorGroup">
-          <div class="color" :style="{backgroundColor: color.value }">{{ colorGroupName }} - {{color.name}}</div>
+        <template v-for="color in baseColors" :key="color.value">
+          <div class="color" :style="{ backgroundColor: color.value }">
+            {{ color.name }}
+          </div>
         </template>
       </div>
     </div>
-  </template>
-</Story>
+
+    <template
+      v-for="(colorGroup, colorGroupName) in colorGroups"
+      :key="colorGroupName"
+    >
+      <div class="color-group">
+        <h2>{{ colorGroupName }}</h2>
+        <div class="color-group__swatches">
+          <template v-for="color in colorGroup" :key="color.value">
+            <div class="color" :style="{ backgroundColor: color.value }">
+              {{ colorGroupName }} - {{ color.name }}
+            </div>
+          </template>
+        </div>
+      </div>
+    </template>
+  </Story>
 </template>
 
 <script lang="ts" setup>
 // @ts-ignore
-import siStyleDict from '@si/style-dict/verbose.json';
-import * as _ from 'lodash-es';
+import siStyleDict from "@si/style-dict/verbose.json";
+import * as _ from "lodash-es";
 
 const colorTokens = siStyleDict.colors;
-const baseColors = _.pick(colorTokens, 'black', 'white');
-const colorGroups = _.omit(colorTokens, 'black', 'white');
-
+const baseColors = _.pick(colorTokens, "black", "white");
+const colorGroups = _.omit(colorTokens, "black", "white");
 </script>
 
 <style scoped>
 .color-group {
-  
 }
 
 .color-group__swatches {
@@ -62,4 +66,3 @@ const colorGroups = _.omit(colorTokens, 'black', 'white');
 
 we like colors
 </docs>
-

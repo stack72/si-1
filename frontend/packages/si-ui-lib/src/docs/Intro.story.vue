@@ -1,9 +1,5 @@
 <template>
-<Story
-  title="1 - Intro"
-  icon="mdi:hand-wave-outline"
-  docs-only
-/>
+  <Story title="1 - Intro" icon="mdi:hand-wave-outline" docs-only />
 </template>
 
 <docs lang="md">

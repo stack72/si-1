@@ -1,3 +1,6 @@
+# editorconfig is respected by most editors and helps with some very basic settings
+# it won't cover everything but should hopefully help avoid someones local editor doing the wrong thing with indentation
+
 root = true
 
 # set defaults

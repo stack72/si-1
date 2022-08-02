@@ -5,23 +5,22 @@
 </template>
 
 <script lang="ts" setup>
-import { computed } from 'vue';
-import type { PropType } from 'vue';
+import { computed } from "vue";
+import type { PropType } from "vue";
 
-export type ButtonSizes = 'xs' | 's' | 'm' | 'l' | 'xl';
+export type ButtonSizes = "xs" | "s" | "m" | "l" | "xl";
 
 const props = defineProps({
   disabled: { type: Boolean },
-  size: { type: String as PropType<ButtonSizes>, default: 'm' },
+  size: { type: String as PropType<ButtonSizes>, default: "m" },
 });
 
 const computedClasses = computed(() => {
   return {
-    '--disabled': props.disabled,
+    "--disabled": props.disabled,
     [`--size-${props.size}`]: true,
-  }
-})
-
+  };
+});
 </script>
 
 <style lang="less">
@@ -35,11 +34,11 @@ const computedClasses = computed(() => {
   @apply bg-action-500;
 
   &:hover {
-    background: #DADADA;
+    background: #dadada;
   }
 
   &.--disabled {
-    opacity: .5;
+    opacity: 0.5;
     pointer-events: none;
   }
 
@@ -49,7 +48,8 @@ const computedClasses = computed(() => {
   &.--size-s {
     font-size: 14px;
   }
-  &.--size-m { // default
+  &.--size-m {
+    // default
     font-size: 16px;
   }
   &.--size-l {
@@ -61,6 +61,5 @@ const computedClasses = computed(() => {
   &.--size-xl {
     font-size: 32px;
   }
-
 }
 </style>
