@@ -2,7 +2,7 @@
 
 use color_eyre::Result;
 use sdf::{
-    Config, FaktoryProcessor, IncomingStream, JobQueueProcessor, MigrationMode, Server,
+    Config, NatsProcessor, IncomingStream, JobQueueProcessor, MigrationMode, Server,
     SyncProcessor,
 };
 use telemetry_application::{
@@ -89,8 +89,8 @@ async fn run(args: args::Args, mut telemetry: ApplicationTelemetryClient) -> Res
 
     let faktory = Server::create_faktory_client(config.faktory());
 
-    let (alive_marker, mut job_processor_shutdown_rx) = mpsc::channel(1);
-    let job_processor = Box::new(FaktoryProcessor::new(faktory.clone(), alive_marker))
+    //let (alive_marker, mut job_processor_shutdown_rx) = mpsc::channel(1);
+    let job_processor = Box::new(NatsProcessor::new(nats.clone()))
         as Box<dyn JobQueueProcessor + Send + Sync>;
 
     let pg_pool = Server::create_pg_pool(config.pg_pool()).await?;
@@ -187,8 +187,8 @@ async fn run(args: args::Args, mut telemetry: ApplicationTelemetryClient) -> Res
     }
 
     // Blocks until all FaktoryProcessors are gone so we don't skip jobs that are still being sent to faktory_async
-    info!("Waiting for all faktory processors to finish pushing jobs");
-    let _ = job_processor_shutdown_rx.recv().await;
+    //info!("Waiting for all faktory processors to finish pushing jobs");
+    //let _ = job_processor_shutdown_rx.recv().await;
 
     info!("Shutting down the faktory client");
     if let Err(err) = faktory.close().await {

@@ -280,16 +280,16 @@ impl Client {
 
         // Construct a subscription stream for the result
         let result_subscription_subject = reply_mailbox_for_result(&reply_mailbox_root);
-        trace!(
+        error!(
             messaging.destination = &result_subscription_subject.as_str(),
             "subscribing for result messages"
         );
         let mut result_subscription: Subscription<FunctionResult<S>> =
-            Subscription::new(self.nats.subscribe(result_subscription_subject).await?);
+            Subscription::new(self.nats.subscribe(result_subscription_subject.clone()).await?);
 
         // Construct a subscription stream for output messages
         let output_subscription_subject = reply_mailbox_for_output(&reply_mailbox_root);
-        trace!(
+        error!(
             messaging.destination = &output_subscription_subject.as_str(),
             "subscribing for output messages"
         );
@@ -300,7 +300,7 @@ impl Client {
 
         // Submit the request message
         let subject = subject.into();
-        trace!(
+        error!(
             messaging.destination = &subject.as_str(),
             "publishing message"
         );
@@ -308,6 +308,10 @@ impl Client {
             .publish_with_reply_or_headers(subject, Some(reply_mailbox_root.as_str()), None, msg)
             .await?;
 
+        error!(
+            messaging.destination = &result_subscription_subject,
+            "waiting for result message"
+        );
         // Wait for one message on the result reply mailbox
         let result = result_subscription
             .try_next()
@@ -315,6 +319,7 @@ impl Client {
             .ok_or(ClientError::NoResult)?;
         result_subscription.unsubscribe().await?;
 
+        error!("got it");
         Ok(result)
     }
 

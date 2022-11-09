@@ -764,7 +764,9 @@ impl Component {
         )
         .await?;
 
+        error!("checking qualifications");
         for prototype in qualification_prototypes {
+            error!(prototype = ?prototype, "checking qualification for prototype");
             let func = Func::get_by_id(ctx, &prototype.func_id())
                 .await?
                 .ok_or_else(|| ComponentError::MissingFunc(prototype.func_id().to_string()))?;
@@ -786,10 +788,13 @@ impl Component {
 
             // We always re-execute the qualification checks as they are not idempotent
 
+            error!("going ot execute your function bobby");
             // Note for future humans - if this isn't a built in, then we need to
             // think about execution time. Probably higher up than this? But just
             // an FYI.
             func_binding.execute(ctx).await?;
+
+            error!("done did it");
 
             let mut existing_resolvers = QualificationResolver::find_for_prototype_and_component(
                 ctx,
@@ -820,7 +825,9 @@ impl Component {
             WsEvent::checked_qualifications(ctx, *prototype.id(), *self.id(), system_id)
                 .publish(ctx)
                 .await?;
+            error!(prototype = ?prototype, "finished checking qualification for prototype");
         }
+        error!("finsihed checking qualifications");
 
         Ok(())
     }

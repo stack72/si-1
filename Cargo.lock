@@ -2425,6 +2425,7 @@ dependencies = [
  "derive_builder",
  "futures",
  "serde",
+ "serde_json",
  "si-data-faktory",
  "si-data-nats",
  "si-data-pg",

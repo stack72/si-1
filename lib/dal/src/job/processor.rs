@@ -8,6 +8,7 @@ use crate::DalContext;
 
 pub mod faktory_processor;
 pub mod sync_processor;
+pub mod nats_processor;
 
 #[derive(Error, Debug)]
 pub enum JobQueueProcessorError {
@@ -15,6 +16,10 @@ pub enum JobQueueProcessorError {
     Faktory(#[from] FaktoryError),
     #[error(transparent)]
     JobProducer(#[from] JobProducerError),
+    #[error(transparent)]
+    Serde(#[from] serde_json::Error),
+    #[error(transparent)]
+    Nats(#[from] si_data_nats::Error)
 }
 
 pub type JobQueueProcessorResult<T> = Result<T, JobQueueProcessorError>;

@@ -128,7 +128,9 @@ pub trait JobConsumer: std::fmt::Debug + Sync {
             .build(self.access_builder().build(self.visibility()))
             .await?;
 
+        telemetry::tracing::error!("fuckity");
         self.run(&ctx).await?;
+        telemetry::tracing::error!("buckets");
 
         ctx.commit().await?;
 

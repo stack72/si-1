@@ -420,6 +420,7 @@ async fn qualification_check_request(
         .start()
         .await?;
 
+    error!("wtf");
     while let Some(msg) = progress.next().await {
         match msg {
             Ok(ProgressMessage::OutputStream(output)) => {
@@ -436,8 +437,11 @@ async fn qualification_check_request(
     }
     publisher.finalize_output().await?;
 
+    error!("finish bbq");
     let function_result = progress.finish().await?;
+    error!(function_result = ?function_result, "trying to publish the result");
     publisher.publish_result(&function_result).await?;
+    error!(function_result = ?function_result, "published the result");
 
     Ok(())
 }

@@ -11,9 +11,9 @@ use dal::{
         },
     },
     DalContext, DalContextBuilder, FaktoryProcessor, InitializationError, JobFailure,
-    JobFailureError, JobQueueProcessor, ServicesContext, TransactionsError,
+    JobFailureError, JobQueueProcessor, ServicesContext, TransactionsError, NatsProcessor,
 };
-use futures::future::FutureExt;
+use futures::{future::FutureExt, StreamExt};
 use si_data_faktory::{BeatState, Client as FaktoryClient, FailConfig, FaktoryConfig};
 use si_data_nats::{NatsClient, NatsConfig, NatsError};
 use si_data_pg::{PgPool, PgPoolConfig, PgPoolError};
@@ -218,9 +218,8 @@ async fn start_job_executor(
     mut shutdown_watch_rx: watch::Receiver<()>,
     processor_alive_marker_tx: mpsc::Sender<()>,
 ) {
-    let job_processor = Box::new(FaktoryProcessor::new(
-        client.clone(),
-        processor_alive_marker_tx,
+    let job_processor = Box::new(NatsProcessor::new(
+        nats.clone(),
     )) as Box<dyn JobQueueProcessor + Send + Sync>;
     let services_context = ServicesContext::new(
         pg.clone(),
@@ -231,70 +230,29 @@ async fn start_job_executor(
     );
     let ctx_builder = DalContext::builder(services_context);
 
+    let mut sub = nats.queue_subscribe("pinga.job", "production").await.expect("failed to subscribe to the queue, panic");
     loop {
-        tokio::time::sleep(Duration::from_millis(10)).await;
-
-        match client.last_beat().await {
-            Ok(BeatState::Ok) => {
-                let job = tokio::select! {
-                    job = client.fetch(vec!["default".into()]) => match job {
-                        Ok(Some(job)) => job,
-                        Ok(None) => continue,
-                        Err(err) => {
-                            error!("Unable to fetch from faktory: {err}");
-                            continue;
-                        }
-                    },
-                    _ = shutdown_watch_rx.changed() => {
-                        info!("Worker task received shutdown notification: stopping");
-                        break;
-                    }
-                };
-
-                let jid = job.id().to_owned();
+        let request = sub.next().await;
+        match &request {
+            Some(Ok(request)) => {
+                let job: si_data_faktory::Job = serde_json::from_slice(request.data()).expect("malformed data from job request");
+                error!(request = ?request, "got a request");
+                //let jid = job.id().to_owned();
                 match execute_job_fallible(job, ctx_builder.clone()).await {
-                    Ok(()) => match client.ack(jid).await {
-                        Ok(()) => {}
-                        Err(err) => {
-                            error!("Ack failed: {err}");
-                            continue;
-                        }
+                    Ok(()) => {
+                        error!("job execution succeeded");
                     },
                     Err(err) => {
                         error!("Job execution failed: {err}");
-                        // TODO: pass backtrace here
-                        match client
-                            .fail(FailConfig::new(
-                                jid,
-                                format!("{err:?}"),
-                                err.to_string(),
-                                None,
-                            ))
-                            .await
-                        {
-                            Ok(()) => {}
-                            Err(err) => {
-                                error!("Fail failed: {err}");
-                                continue;
-                            }
-                        }
                     }
                 }
+
             }
-            Ok(BeatState::Quiet) => {
-                // Getting a "quiet" state from the faktory server means that
-                // someone has gone to the faktory UI and requested that this
-                // particular worker finish what it's doing, and gracefully
-                // shut down.
-                info!("Gracefully shutting down from Faktory request.");
-                break;
+            Some(Err(err)) => {
+                error!(request = ?request, error = ?err, "queue subscribe request failed");
             }
-            Ok(BeatState::Terminate) => {
-                warn!("Faktory asked us to terminate");
-                break;
-            }
-            Err(err) => {
-                error!("Internal error in faktory-async, bailing out: {err}");
+            None => {
+                error!("pinga subscriber stream has closed");
                 break;
             }
         }

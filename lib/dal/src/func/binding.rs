@@ -292,14 +292,18 @@ impl FuncBinding {
 
     // For a given [`FuncBinding`](Self), execute using veritech.
     pub async fn execute(&self, ctx: &DalContext) -> FuncBindingResult<FuncBindingReturnValue> {
+        error!("thinking about executing the function");
         let (func, execution, context, mut rx) = self.prepare_execution(ctx).await?;
+        error!("thinking about executing the function critical section");
         let value = self.execute_critical_section(func.clone(), context).await?;
 
+        error!("thinking about getting the output");
         let mut output = Vec::new();
         while let Some(output_stream) = rx.recv().await {
             output.push(output_stream);
         }
 
+        error!("executed the function, now post processing it");
         self.postprocess_execution(ctx, output, &func, value, execution)
             .await
     }
@@ -399,6 +403,7 @@ impl FuncBinding {
             .set_state(ctx, super::execution::FuncExecutionState::Success)
             .await?;
 
+        error!("finished postpocessing execution");
         Ok(func_binding_return_value)
     }
 

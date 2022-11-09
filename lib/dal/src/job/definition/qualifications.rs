@@ -3,6 +3,7 @@ use std::{collections::HashMap, convert::TryFrom};
 use async_trait::async_trait;
 use serde::{Deserialize, Serialize};
 use si_data_faktory::Job;
+use telemetry::tracing::error;
 
 use crate::{
     component::ComponentResult,
@@ -110,11 +111,13 @@ impl JobConsumer for Qualifications {
     }
 
     async fn run(&self, ctx: &DalContext) -> JobConsumerResult<()> {
+        error!("job qualfiications run from db");
         let component = Component::get_by_id(ctx, &self.component_id)
             .await?
             .ok_or(ComponentError::NotFound(self.component_id))?;
-
+        error!("job qualfiications run for check qualifications ");
         component.check_qualifications(ctx, self.system_id).await?;
+        error!("finished");
 
         Ok(())
     }

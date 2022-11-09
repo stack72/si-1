@@ -4,6 +4,7 @@ pub use config::{
 };
 pub use dal::job::processor::{
     faktory_processor::FaktoryProcessor, sync_processor::SyncProcessor, JobQueueProcessor,
+    nats_processor::NatsProcessor,
 };
 pub use dal::MigrationMode;
 pub use routes::{routes, AppError, AppResult};

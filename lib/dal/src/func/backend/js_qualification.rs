@@ -1,6 +1,7 @@
 use async_trait::async_trait;
 use chrono::Utc;
 use serde::{Deserialize, Serialize};
+use telemetry::tracing::error;
 use veritech_client::{
     FunctionResult, OutputStream, QualificationCheckComponent, QualificationCheckRequest,
     QualificationCheckResultSuccess,
@@ -51,7 +52,7 @@ impl FuncDispatch for FuncBackendJsQualification {
             .execute_qualification_check(output_tx.clone(), &self.request)
             .await?;
         match &value {
-            FunctionResult::Failure(_) => {}
+            FunctionResult::Failure(e) => { error!(error = ?e, "qualification fuhnction result failure") }
             FunctionResult::Success(value) => {
                 if let Some(message) = &value.message {
                     output_tx
@@ -67,6 +68,7 @@ impl FuncDispatch for FuncBackendJsQualification {
                         .await
                         .map_err(|_| FuncBackendError::SendError)?;
                 } else {
+                    error!("um, we thought we had it? but we didn't")
                 }
             }
         }
