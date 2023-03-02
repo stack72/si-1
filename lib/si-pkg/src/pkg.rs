@@ -378,6 +378,60 @@ impl<'a> SiPkgSchemaVariant<'a> {
         self.color.as_deref()
     }
 
+    pub async fn visit_prop_tree_cloneable<F, Fut, I, C>(
+        &'a self,
+        process_prop_fn: F,
+        parent_info: Option<I>,
+        context: &'a C,
+    ) -> Result<(), SiPkgError>
+    where
+        F: Fn(SiPkgProp<'a>, Option<I>, &'a C) -> Fut,
+        Fut: Future<Output = Result<Option<I>, SiPkgError>>,
+        I: Clone,
+    {
+        let mut child_node_idxs: Vec<_> = self
+            .source
+            .graph
+            .neighbors_directed(self.source.node_idx, Outgoing)
+            .collect();
+        let domain_node_idx = match child_node_idxs.pop() {
+            Some(idx) => idx,
+            None => return Err(SiPkgError::DomainPropNotFound(self.hash())),
+        };
+        if !child_node_idxs.is_empty() {
+            return Err(SiPkgError::DomainPropMultipleFound(self.hash()));
+        }
+
+        let mut stack: Vec<(_, Option<I>)> = Vec::new();
+        // Skip processing the domain prop as a `dal::SchemaVariant` already guarantees such a prop
+        // has already been created. Rather, we will push all immediate children of the domain prop
+        // to be ready for processing.
+        for child_idx in self
+            .source
+            .graph
+            .neighbors_directed(domain_node_idx, Outgoing)
+        {
+            stack.push((
+                SiPkgProp::from_graph(self.source.graph, child_idx)?,
+                parent_info.clone(),
+            ));
+        }
+
+        while let Some((prop, parent_info)) = stack.pop() {
+            let node_idx = prop.source().node_idx;
+            let new_id = process_prop_fn(prop, parent_info, context).await?;
+
+            for child_idx in self.source.graph.neighbors_directed(node_idx, Outgoing) {
+                stack.push((
+                    SiPkgProp::from_graph(self.source.graph, child_idx)?,
+                    new_id.clone(),
+                ));
+            }
+        }
+
+        Ok(())
+    }
+
     pub async fn visit_prop_tree<F, Fut, I, C>(
         &'a self,
         process_prop_fn: F,

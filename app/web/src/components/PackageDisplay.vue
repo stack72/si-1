@@ -40,13 +40,13 @@
       <ul class="p-sm overflow-y-auto">
         <li
           v-for="sv in selectedPackage.schemas"
-          :key="sv"
+          :key="sv.schemaName"
           class="flex flex-col"
         >
           <div class="flex flex-row items-center">
-            <div>{{ sv }}</div>
+            <div>{{ sv.schemaName }}</div>
           </div>
-          <div class="pl-lg pb-sm">other info goes here</div>
+          <div class="pl-lg pb-sm">{{ sv.props }}</div>
         </li>
       </ul>
     </div>

@@ -2,7 +2,6 @@ import { defineStore } from "pinia";
 import _ from "lodash";
 import { parseISO } from "date-fns";
 import { addStoreHooks } from "@/store/lib/pinia_hooks_plugin";
-import { DiagramInputSocket, DiagramOutputSocket } from "@/api/sdf/dal/diagram";
 import { ApiRequest } from "@/store/lib/pinia_api_tools";
 import { Visibility } from "@/api/sdf/dal/visibility";
 import { nilId } from "@/utils/nilId";
@@ -12,14 +11,15 @@ import { useRouterStore } from "./router.store";
 export type PackageId = string;
 export type PackageSlug = string;
 
-export interface SchemaVariant {
-  id: string;
+export interface PkgProp {
   name: string;
+  kind: string;
+  children: PkgProp[];
+}
+
+export interface SchemaVariant {
   schemaName: string;
-  schemaId: string;
-  color: string;
-  inputSockets: DiagramInputSocket[];
-  outputSockets: DiagramOutputSocket[];
+  props: PkgProp[];
 }
 
 export interface Package {
@@ -28,7 +28,7 @@ export interface Package {
   description: string;
   createdAt: Date;
   createdBy: string;
-  schemas: string[];
+  schemas: SchemaVariant[];
   installed: boolean;
   hash: string;
 }
@@ -39,7 +39,7 @@ export interface PkgGetResponse {
   description: string;
   createdAt: string;
   createdBy: string;
-  schemas: string[];
+  schemas: SchemaVariant[];
   installed: boolean;
   hash: string;
 }
