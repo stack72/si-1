@@ -900,6 +900,7 @@ dependencies = [
  "color-eyre",
  "council",
  "dal",
+ "jwt-simple",
  "lazy_static",
  "names",
  "serde",
