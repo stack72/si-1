@@ -860,3 +860,226 @@ async fn with_deep_data_structure(ctx: &DalContext) {
             .expect("able to get value")
     );
 }
+
+#[test]
+async fn inter_component_identity_update_to_deleted_component(ctx: &DalContext) {
+    // Setup both components used for inter component identity update.
+    let esp_payload = setup_esp(ctx).await;
+    let swings_payload = setup_swings(ctx).await;
+
+    // Collect the identity func information we need.
+    let (
+        identity_func_id,
+        identity_func_binding_id,
+        identity_func_binding_return_value_id,
+        id_func_arg_id,
+    ) = setup_identity_func(ctx).await;
+
+    // Setup the "esp" intra component update functionality from "source" to "intermediate".
+    let intermediate_attribute_value = AttributeValue::find_for_context(
+        ctx,
+        esp_payload.attribute_read_context_with_prop_id("/root/domain/object/intermediate"),
+    )
+    .await
+    .expect("cannot find attribute value")
+    .expect("attribute value not found");
+    let mut intermediate_attribute_prototype = intermediate_attribute_value
+        .attribute_prototype(ctx)
+        .await
+        .expect("cannot find attribute prototype")
+        .expect("attribute prototype not found");
+    intermediate_attribute_prototype
+        .set_func_id(ctx, identity_func_id)
+        .await
+        .expect("could not set func id on attribute prototype");
+    let source_internal_provider =
+        InternalProvider::find_for_prop(ctx, esp_payload.get_prop_id("/root/domain/object/source"))
+            .await
+            .expect("could not get internal provider")
+            .expect("internal provider not found");
+    AttributePrototypeArgument::new_for_intra_component(
+        ctx,
+        *intermediate_attribute_prototype.id(),
+        id_func_arg_id,
+        *source_internal_provider.id(),
+    )
+    .await
+    .expect("could not create attribute prototype argument");
+
+    // Create the "esp" external provider for inter component connection.
+    let (esp_external_provider, _socket) = ExternalProvider::new_with_socket(
+        ctx,
+        esp_payload.schema_id,
+        esp_payload.schema_variant_id,
+        "output",
+        None,
+        identity_func_id,
+        identity_func_binding_id,
+        identity_func_binding_return_value_id,
+        SocketArity::Many,
+        false,
+    )
+    .await
+    .expect("could not create external provider");
+    let esp_intermediate_internal_provider = InternalProvider::find_for_prop(
+        ctx,
+        esp_payload.get_prop_id("/root/domain/object/intermediate"),
+    )
+    .await
+    .expect("could not get internal provider")
+    .expect("internal provider not found");
+    AttributePrototypeArgument::new_for_intra_component(
+        ctx,
+        *esp_external_provider
+            .attribute_prototype_id()
+            .expect("no attribute prototype id for external provider"),
+        id_func_arg_id,
+        *esp_intermediate_internal_provider.id(),
+    )
+    .await
+    .expect("could not create attribute prototype argument");
+
+    // Create the "swings" explicit internal provider for intra component connection.
+    let (swings_explicit_internal_provider, _socket) = InternalProvider::new_explicit_with_socket(
+        ctx,
+        swings_payload.schema_variant_id,
+        "swings",
+        identity_func_id,
+        identity_func_binding_id,
+        identity_func_binding_return_value_id,
+        SocketArity::Many,
+        false,
+    )
+    .await
+    .expect("could not create explicit internal provider");
+    let swings_destination_attribute_value = AttributeValue::find_for_context(
+        ctx,
+        swings_payload.attribute_read_context_with_prop_id("/root/domain/destination"),
+    )
+    .await
+    .expect("cannot find attribute value")
+    .expect("attribute value not found");
+    let mut swings_destination_attribute_prototype = swings_destination_attribute_value
+        .attribute_prototype(ctx)
+        .await
+        .expect("could not find attribute prototype")
+        .expect("attribute prototype not found");
+    swings_destination_attribute_prototype
+        .set_func_id(ctx, identity_func_id)
+        .await
+        .expect("could not set func id on attribute prototype");
+    AttributePrototypeArgument::new_for_intra_component(
+        ctx,
+        *swings_destination_attribute_prototype.id(),
+        id_func_arg_id,
+        *swings_explicit_internal_provider.id(),
+    )
+    .await
+    .expect("could not create attribute prototype argument");
+
+    // Connect the two components.
+    Edge::connect_providers_for_components(
+        ctx,
+        *swings_explicit_internal_provider.id(),
+        swings_payload.component_id,
+        *esp_external_provider.id(),
+        esp_payload.component_id,
+    )
+    .await
+    .expect("could not connect providers");
+
+    // Update the "esp" field, "source"
+    esp_payload
+        .update_attribute_value_for_prop_name(
+            ctx,
+            "/root/domain/object/source",
+            Some(serde_json::json!["transmit"]),
+        )
+        .await;
+
+    // Observe that inter component identity updating work.
+    assert_eq!(
+        serde_json::json![{
+            "si": {
+                "name": "esp",
+                "type": "component",
+                "protected": false
+            },
+            "domain": {
+                "object": {
+                    "intermediate": "transmit",
+                    "source": "transmit",
+                },
+            },
+        }], // expected
+        esp_payload.component_view_properties_raw(ctx).await // actual
+    );
+    assert_eq!(
+        serde_json::json![{
+            "si": {
+                "name": "swings",
+                "type": "component",
+                "protected": false
+            },
+            "domain": {
+                "destination": "transmit",
+            },
+        }], // expected
+        swings_payload.component_view_properties_raw(ctx).await // actual
+    );
+
+    swings_payload
+        .component(ctx)
+        .await
+        .delete_and_propagate(ctx)
+        .await
+        .expect("failed to delete swings component");
+
+    // Update the "esp" field, "source, again"
+    esp_payload
+        .update_attribute_value_for_prop_name(
+            ctx,
+            "/root/domain/object/source",
+            Some(serde_json::json!["transmit again"]),
+        )
+        .await;
+
+    assert_eq!(
+        serde_json::json![{
+            "si": {
+                "name": "esp",
+                "type": "component",
+                "protected": false
+            },
+            "domain": {
+                "object": {
+                    "intermediate": "transmit again",
+                    "source": "transmit again",
+                },
+            },
+        }], // expected
+        esp_payload.component_view_properties_raw(ctx).await // actual
+    );
+
+    let deleted_ctx = ctx.clone_with_new_visibility(dal::Visibility::new_change_set(
+        ctx.visibility().change_set_pk,
+        true,
+    ));
+
+    // Deleted component should not have received the update
+    assert_eq!(
+        serde_json::json![{
+            "si": {
+                "name": "swings",
+                "type": "component",
+                "protected": false
+            },
+            "domain": {
+                "destination": "transmit",
+            },
+        }], // expected
+        swings_payload
+            .component_view_properties_raw(&deleted_ctx)
+            .await // actual
+    );
+}
