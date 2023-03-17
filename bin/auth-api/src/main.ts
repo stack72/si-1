@@ -36,6 +36,9 @@ app.use((_ctx, _next) => {
   throw new ApiError("NotFound", "URL not found");
 });
 
+// for vercel
+export default app;
+
 async function boot() {
   // not strictly necessary, but this way we fail right away if we can't connect to db
   await prisma.$connect();
@@ -43,11 +46,14 @@ async function boot() {
   console.log(chalk.green.bold(`Auth API listening on port ${process.env.PORT}`));
 }
 
-boot()
-  .then(async () => {
-    await prisma.$disconnect();
-  })
-  .catch(async (err) => {
-    console.log('ERROR!', err);
-    await prisma.$disconnect();
-  });
+// boot the server if running locally
+if (!process.env.VERCEL) {
+  boot()
+    .then(async () => {
+      await prisma.$disconnect();
+    })
+    .catch(async (err) => {
+      console.log('ERROR!', err);
+      await prisma.$disconnect();
+    });
+}

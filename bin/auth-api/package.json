@@ -8,7 +8,9 @@
     "dev": "node --watch --no-warnings --experimental-specifier-resolution=node --loader ts-node/esm ./src/main.ts",
     "lint": "eslint src --ext .ts,.cjs",
     "lint:fix": "pnpm run lint --fix",
-    "db:reset": "prisma migrate reset --force && prisma migrate deploy"
+    "db:reset": "prisma migrate reset --force && prisma migrate deploy",
+    "db:migrate": "prisma migrate deploy",
+    "build": "prisma generate && tsc"
   },
   "dependencies": {
     "@koa/cors": "^4.0.0",
