@@ -691,6 +691,7 @@ impl AttributeValue {
             key,
             true,
             true,
+            true,
         )
         .await
     }
@@ -713,6 +714,7 @@ impl AttributeValue {
             key,
             true,
             false,
+            true,
         )
         .await
     }
@@ -735,12 +737,13 @@ impl AttributeValue {
             key,
             false,
             true,
+            true,
         )
         .await
     }
 
     #[allow(clippy::too_many_arguments)]
-    async fn update_for_context_raw(
+    pub async fn update_for_context_raw(
         ctx: &DalContext,
         attribute_value_id: AttributeValueId,
         parent_attribute_value_id: Option<AttributeValueId>,
@@ -750,6 +753,7 @@ impl AttributeValue {
         key: Option<String>,
         create_child_proxies: bool,
         propagate_dependent_values: bool,
+        do_status_updates: bool,
     ) -> AttributeValueResult<(Option<serde_json::Value>, AttributeValueId)> {
         let row = ctx.pg_txn().query_one(
             "SELECT new_attribute_value_id FROM attribute_value_update_for_context_raw_v1($1, $2, $3, $4, $5, $6, $7, $8)",
@@ -771,11 +775,10 @@ impl AttributeValue {
         // already updated the initial attribute value, so is there much value?
 
         if propagate_dependent_values {
-            ctx.enqueue_job(DependentValuesUpdate::new(
-                ctx,
-                vec![new_attribute_value_id],
-            ))
-            .await;
+            let mut job = DependentValuesUpdate::new(ctx, vec![new_attribute_value_id]);
+            job.set_do_status_updates(do_status_updates);
+
+            ctx.enqueue_job(job).await;
         }
 
         Ok((value, new_attribute_value_id))

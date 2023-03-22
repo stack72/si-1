@@ -17,12 +17,14 @@ use crate::{
 #[derive(Debug, Deserialize, Serialize)]
 struct DependentValuesUpdateArgs {
     attribute_values: Vec<AttributeValueId>,
+    do_status_updates: bool,
 }
 
 impl From<DependentValuesUpdate> for DependentValuesUpdateArgs {
     fn from(value: DependentValuesUpdate) -> Self {
         Self {
             attribute_values: value.attribute_values,
+            do_status_updates: value.do_status_updates,
         }
     }
 }
@@ -34,6 +36,7 @@ pub struct DependentValuesUpdate {
     visibility: Visibility,
     job: Option<JobInfo>,
     single_transaction: bool,
+    do_status_updates: bool,
 }
 
 impl DependentValuesUpdate {
@@ -47,7 +50,12 @@ impl DependentValuesUpdate {
             visibility,
             job: None,
             single_transaction: false,
+            do_status_updates: true,
         })
+    }
+
+    pub fn set_do_status_updates(&mut self, do_status_updates: bool) {
+        self.do_status_updates = do_status_updates;
     }
 
     async fn clone_ctx_with_new_transactions(
@@ -55,8 +63,10 @@ impl DependentValuesUpdate {
         ctx: &DalContext,
     ) -> JobConsumerResult<DalContext> {
         if self.single_transaction {
+            dbg!("single tranasction");
             Ok(ctx.clone())
         } else {
+            dbg!("cloning with new transaction");
             Ok(ctx.clone_with_new_transactions().await?)
         }
     }
@@ -127,7 +137,15 @@ impl JobConsumer for DependentValuesUpdate {
 
         let now = std::time::Instant::now();
 
-        let status_updater = Arc::new(Mutex::new(StatusUpdater::initialize(&ctx).await?));
+        let status_updater = if !self.do_status_updates {
+            dbg!("not doing status updates");
+            None
+        } else {
+            dbg!("doing status updates");
+            Some(Arc::new(Mutex::new(
+                StatusUpdater::initialize(&ctx, self.single_transaction).await?,
+            )))
+        };
 
         let jid = council_server::Id::from_string(&self.job.as_ref().unwrap().id)?;
         let mut council = council_server::Client::new(
@@ -196,11 +214,16 @@ impl JobConsumer for DependentValuesUpdate {
 
         let mut enqueued: Vec<AttributeValueId> = dependency_graph.keys().copied().collect();
         enqueued.extend(dependency_graph.values().flatten().copied());
-        status_updater
-            .lock()
-            .await
-            .values_queued(&ctx, enqueued)
-            .await?;
+        match status_updater.as_ref() {
+            Some(status_updater) => {
+                status_updater
+                    .lock()
+                    .await
+                    .values_queued(&ctx, enqueued)
+                    .await?
+            }
+            None => {}
+        }
 
         ctx = self.commit_and_continue(ctx).await?;
 
@@ -214,11 +237,16 @@ impl JobConsumer for DependentValuesUpdate {
                             let id = AttributeValueId::from(node_id);
                             dependency_graph.remove(&id);
 
-                            status_updater
-                                .lock()
-                                .await
-                                .values_running(&ctx, vec![id])
-                                .await?;
+                            match status_updater.as_ref() {
+                                None => {}
+                                Some(status_updater) => {
+                                    status_updater
+                                        .lock()
+                                        .await
+                                        .values_running(&ctx, vec![id])
+                                        .await?
+                                }
+                            }
                             ctx = self.commit_and_continue(ctx).await?;
 
                             let task_ctx = self.clone_ctx_with_new_transactions(&ctx).await?;
@@ -244,16 +272,21 @@ impl JobConsumer for DependentValuesUpdate {
                         dependency_graph.remove(&id);
 
                         // Send a completed status for this value and *remove* it from the hash
-                        status_updater
-                            .lock()
-                            .await
-                            .values_running(&ctx, vec![id])
-                            .await?;
-                        status_updater
-                            .lock()
-                            .await
-                            .values_completed(&ctx, vec![id])
-                            .await?;
+                        match status_updater.as_ref() {
+                            None => {}
+                            Some(status_updater) => {
+                                status_updater
+                                    .lock()
+                                    .await
+                                    .values_running(&ctx, vec![id])
+                                    .await?;
+                                status_updater
+                                    .lock()
+                                    .await
+                                    .values_completed(&ctx, vec![id])
+                                    .await?;
+                            }
+                        }
 
                         ctx = self.commit_and_continue(ctx).await?;
                     }
@@ -307,11 +340,16 @@ impl JobConsumer for DependentValuesUpdate {
 
         ctx = self.commit_and_continue(ctx).await?;
 
-        Arc::try_unwrap(status_updater)
-            .unwrap()
-            .into_inner()
-            .finish(&ctx)
-            .await?;
+        match status_updater {
+            Some(status_updater) => {
+                Arc::try_unwrap(status_updater)
+                    .unwrap()
+                    .into_inner()
+                    .finish(&ctx)
+                    .await?
+            }
+            None => {}
+        }
 
         WsEvent::change_set_written(&ctx)
             .await?
@@ -353,7 +391,7 @@ async fn update_value(
     mut attribute_value: AttributeValue,
     single_transaction: bool,
     council: council_server::PubClient,
-    status_updater: Arc<Mutex<StatusUpdater>>,
+    status_updater: Option<Arc<Mutex<StatusUpdater>>>,
 ) -> AttributeValueResult<()> {
     info!("DependentValueUpdate {:?}: START", attribute_value.id());
     let start = std::time::Instant::now();
@@ -365,12 +403,15 @@ async fn update_value(
     );
 
     // Send a completed status for this value and *remove* it from the hash
-    status_updater
-        .lock()
-        .await
-        .values_completed(&ctx, vec![*attribute_value.id()])
-        .await
-        .map_err(Box::new)?;
+    match status_updater {
+        Some(status_updater) => status_updater
+            .lock()
+            .await
+            .values_completed(&ctx, vec![*attribute_value.id()])
+            .await
+            .map_err(Box::new)?,
+        None => {}
+    }
 
     WsEvent::change_set_written(&ctx)
         .await?
@@ -406,6 +447,7 @@ impl TryFrom<JobInfo> for DependentValuesUpdate {
             visibility,
             job: Some(job),
             single_transaction: false,
+            do_status_updates: args.do_status_updates,
         })
     }
 }

@@ -114,13 +114,16 @@ impl Component {
                 .to_context()?;
 
         if trigger_dependent_values_update {
-            let (_, _) = AttributeValue::update_for_context(
+            let (_, _) = AttributeValue::update_for_context_raw(
                 ctx,
                 *resource_attribute_value.id(),
                 Some(*root_attribute_value.id()),
                 update_attribute_context,
                 Some(serde_json::to_value(result)?),
                 None,
+                false,
+                true,
+                false,
             )
             .await?;
         } else {

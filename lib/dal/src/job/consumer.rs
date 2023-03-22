@@ -114,8 +114,10 @@ pub trait JobConsumer: std::fmt::Debug + Sync {
     fn access_builder(&self) -> AccessBuilder;
     fn visibility(&self) -> Visibility;
 
-    /// Horrible hack, exists to support sync processor, they need that all jobs run within the provided DalContext, without commiting any transactions, or writing to unrelated transactions
-    /// And since it's sync the data sharing issue that appears in dependent values update running in parallel in pinga, sharing data, synchronized by council, stops existing
+    /// Horrible hack, exists to support sync processor, they need that all jobs run within the
+    /// provided DalContext, without commiting any transactions, or writing to unrelated
+    /// transactions And since it's sync the data sharing issue that appears in dependent values
+    /// update running in parallel in pinga, sharing data, synchronized by council, stops existing
     fn set_sync(&mut self) {}
 
     /// Intended to be defined by implementations of this trait.

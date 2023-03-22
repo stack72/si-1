@@ -15,8 +15,8 @@ use crate::{
     AttributeValue, AttributeValueError, AttributeValueId, ChangeSetPk, Component, ComponentError,
     ComponentId, ComponentStatus, DalContext, ExternalProvider, ExternalProviderError,
     InternalProvider, InternalProviderError, Prop, PropError, PropId, SchemaVariant, SocketId,
-    StandardModel, StandardModelError, Tenancy, Timestamp, UserPk, WsEvent, WsEventError,
-    WsEventResult, WsPayload,
+    StandardModel, StandardModelError, Tenancy, Timestamp, TransactionsError, UserPk, WsEvent,
+    WsEventError, WsEventResult, WsPayload,
 };
 
 const MODEL_TABLE: &str = "status_updates";
@@ -46,6 +46,8 @@ pub enum StatusUpdateError {
     /// When a user is not found by id
     #[error("user not found with pk: {0}")]
     UserNotFound(UserPk),
+    #[error(transparent)]
+    ContextTransaction(#[from] TransactionsError),
 }
 
 impl From<PgPoolError> for StatusUpdateError {
@@ -129,43 +131,25 @@ impl StatusUpdate {
     ///
     /// Returns [`Err`] if the datastore is unable to persist the new object.
     pub async fn new(ctx: &DalContext) -> StatusUpdateResult<Self> {
+        let new_ctx = ctx.clone_with_new_transactions().await?;
+        let ctx = &new_ctx;
         let actor = ActorView::from_history_actor(ctx, *ctx.history_actor()).await?;
 
         // This query explicitly uses its own connection to bypass/avoid a ctx's database
         // transaction--status updates live outside of transactions!
         let row = ctx
-            .pg_pool()
-            .get()
-            .await?
+            .txns()
+            .pg()
             .query_one(
                 "SELECT object FROM status_update_create_v1($1, $2, $3)",
                 &[&ctx.visibility().change_set_pk, &actor, ctx.tenancy()],
             )
             .await?;
+
+        new_ctx.commit().await?;
+
         let json: serde_json::Value = row.try_get("object")?;
         let object: Self = serde_json::from_value(json)?;
-        Ok(object)
-    }
-
-    /// Fetches and returns a `StatusUpdate` by its primary key.
-    ///
-    /// # Errors
-    ///
-    /// Returns [`Err`] if there is a connection issue or if the object was not found.
-    pub async fn get_by_pk(ctx: &DalContext, pk: StatusUpdatePk) -> StatusUpdateResult<Self> {
-        // This query explicitly uses its own connection to bypass/avoid a ctx's database
-        // transaction--status updates live outside of transactions!
-        let row = ctx
-            .pg_pool()
-            .get()
-            .await?
-            .query_one(
-                "SELECT object FROM get_by_pk_v1($1, $2)",
-                &[&MODEL_TABLE, &pk],
-            )
-            .await?;
-        let json: serde_json::Value = row.try_get("object")?;
-        let object = serde_json::from_value(json)?;
         Ok(object)
     }
 
@@ -175,17 +159,15 @@ impl StatusUpdate {
     ///
     /// Returns [`Err`] if there is a connection issue.
     pub async fn list_active(ctx: &DalContext) -> StatusUpdateResult<Vec<Self>> {
-        // This query explicitly uses its own connection to bypass/avoid a ctx's database
-        // transaction--status updates live outside of transactions!
         let rows = ctx
-            .pg_pool()
-            .get()
-            .await?
+            .txns()
+            .pg()
             .query(
                 LIST_ACTIVE,
                 &[&ctx.visibility().change_set_pk, ctx.tenancy()],
             )
             .await?;
+
         objects_from_rows(rows).map_err(Into::into)
     }
 
@@ -287,11 +269,11 @@ impl StatusUpdate {
     /// Returns [`Err`] if there is a connection issue or if the update fails.
     pub async fn finish(&mut self, ctx: &DalContext) -> StatusUpdateResult<()> {
         let row = ctx
-            .pg_pool()
-            .get()
-            .await?
+            .txns()
+            .pg()
             .query_one(MARK_FINISHED, &[&self.pk])
             .await?;
+
         let updated_at = row.try_get("updated_at").map_err(|_| {
             StandardModelError::ModelMissing(MODEL_TABLE.to_string(), self.pk.to_string())
         })?;
@@ -308,11 +290,11 @@ impl StatusUpdate {
         // This query explicitly uses its own connection to bypass/avoid a ctx's database
         // transaction--status updates live outside of transactions!
         let row = ctx
-            .pg_pool()
-            .get()
-            .await?
+            .txns()
+            .pg()
             .query_one(UPDATE_DATA, &[&self.pk, &self.data])
             .await?;
+
         let updated_at = row.try_get("updated_at").map_err(|_| {
             StandardModelError::ModelMissing(MODEL_TABLE.to_string(), self.pk.to_string())
         })?;
@@ -430,6 +412,9 @@ pub enum StatusUpdaterError {
     /// When a [NATS](https://nats.io) error is encountered
     #[error("nats error: {0}")]
     NatsError(#[from] si_data_nats::Error),
+    /// When a transaction error occurs
+    #[error(transparent)]
+    ContextTransaction(#[from] TransactionsError),
 }
 
 impl StatusUpdaterError {
@@ -439,10 +424,22 @@ impl StatusUpdaterError {
     }
 }
 
+async fn get_ctx(
+    ctx: &DalContext,
+    single_transaction: bool,
+) -> Result<DalContext, StatusUpdaterError> {
+    Ok(if single_transaction {
+        ctx.clone()
+    } else {
+        ctx.clone_with_new_transactions().await?
+    })
+}
+
 /// Tracks and maintains the persisted and realtime state of a [`StatusUpdate`].
 #[derive(Clone, Debug)]
 pub struct StatusUpdater {
     model: StatusUpdate,
+    single_transaction: bool,
 }
 
 impl StatusUpdater {
@@ -451,7 +448,13 @@ impl StatusUpdater {
     /// # Errors
     ///
     /// Returns [`Err`] if the datastore is unable to persist the new object.
-    pub async fn initialize(ctx: &DalContext) -> Result<Self, StatusUpdaterError> {
+    pub async fn initialize(
+        ctx: &DalContext,
+        single_transaction: bool,
+    ) -> Result<Self, StatusUpdaterError> {
+        dbg!("initializing status updater");
+        let local_ctx = get_ctx(ctx, single_transaction).await?;
+        let ctx = &local_ctx;
         let model = StatusUpdate::new(ctx).await?;
 
         Self::publish_immediately(
@@ -461,7 +464,18 @@ impl StatusUpdater {
         )
         .await?;
 
-        Ok(Self { model })
+        if !single_transaction {
+            local_ctx.commit().await?;
+        }
+
+        Ok(Self {
+            model,
+            single_transaction,
+        })
+    }
+
+    pub async fn get_ctx(&self, ctx: &DalContext) -> Result<DalContext, StatusUpdaterError> {
+        get_ctx(ctx, self.single_transaction).await
     }
 
     /// Updates the [`StatusUpdate`] with a new set of queued values, represented with their
@@ -475,6 +489,8 @@ impl StatusUpdater {
         ctx: &DalContext,
         value_ids: Vec<AttributeValueId>,
     ) -> Result<(), StatusUpdaterError> {
+        let local_ctx = self.get_ctx(ctx).await?;
+        let ctx = &local_ctx;
         let now = std::time::Instant::now();
 
         let mut dependent_values_metadata: HashMap<AttributeValueId, AttributeValueMetadata> =
@@ -654,6 +670,10 @@ impl StatusUpdater {
         )
         .await?;
 
+        if !self.single_transaction {
+            local_ctx.commit().await?;
+        }
+
         Ok(())
     }
 
@@ -668,6 +688,8 @@ impl StatusUpdater {
         ctx: &DalContext,
         value_ids: Vec<AttributeValueId>,
     ) -> Result<(), StatusUpdaterError> {
+        let local_ctx = self.get_ctx(ctx).await?;
+        let ctx = &local_ctx;
         let running_values = self
             .model
             .set_running_dependent_value_ids(ctx, value_ids)
@@ -685,6 +707,10 @@ impl StatusUpdater {
         )
         .await?;
 
+        if !self.single_transaction {
+            local_ctx.commit().await?;
+        }
+
         Ok(())
     }
 
@@ -699,6 +725,9 @@ impl StatusUpdater {
         ctx: &DalContext,
         value_ids: Vec<AttributeValueId>,
     ) -> Result<(), StatusUpdaterError> {
+        let local_ctx = self.get_ctx(ctx).await?;
+        let ctx = &local_ctx;
+
         let completed_values = self
             .model
             .set_completed_dependent_value_ids(ctx, value_ids)
@@ -717,17 +746,19 @@ impl StatusUpdater {
             ComponentStatus::record_update_by_id(ctx, component_id).await?;
         }
 
-        Self::publish_immediately(
+        WsEvent::status_update(
             ctx,
-            WsEvent::status_update(
-                ctx,
-                self.model.pk,
-                StatusMessageState::Completed,
-                completed_values,
-            )
-            .await?,
+            self.model.pk,
+            StatusMessageState::Completed,
+            completed_values,
         )
+        .await?
+        .publish_on_commit(ctx)
         .await?;
+
+        if !self.single_transaction {
+            local_ctx.commit().await?;
+        }
 
         Ok(())
     }
@@ -738,6 +769,9 @@ impl StatusUpdater {
     ///
     /// Returns [`Err`] if there are unprocessed values.
     pub async fn finish(mut self, ctx: &DalContext) -> Result<(), StatusUpdaterError> {
+        let local_ctx = self.get_ctx(ctx).await?;
+        let ctx = &local_ctx;
+
         self.model.finish(ctx).await?;
 
         let all_value_ids = self
@@ -786,6 +820,10 @@ impl StatusUpdater {
             .await?,
         )
         .await?;
+
+        if !self.single_transaction {
+            local_ctx.commit().await?;
+        }
 
         Ok(())
     }

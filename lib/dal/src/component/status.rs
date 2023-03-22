@@ -5,8 +5,8 @@ use serde::{Deserialize, Serialize};
 use crate::component::{ComponentResult, COMPONENT_STATUS_UPDATE_BY_PK};
 use crate::standard_model::TypeHint;
 use crate::{
-    impl_standard_model, pk, standard_model, ComponentId, DalContext, HistoryActor,
-    StandardModelError, Tenancy, Timestamp, UserPk, Visibility,
+    impl_standard_model, pk, standard_model, status::StatusUpdatePk, ComponentId, DalContext,
+    HistoryActor, StandardModelError, Tenancy, Timestamp, UserPk, Visibility,
 };
 
 pk!(ComponentStatusPk);
@@ -68,6 +68,8 @@ impl ComponentStatus {
         ctx: &DalContext,
         id: ComponentId,
     ) -> ComponentResult<DateTime<Utc>> {
+        let local_ctx = ctx.clone_with_new_transactions().await?;
+        let ctx = &local_ctx;
         let actor_user_pk = Self::user_pk(ctx.history_actor());
 
         // TODO(fnichol): I would *highly* prefer to avoid 2 `UPDATE` statements, but our standard
@@ -100,30 +102,7 @@ impl ComponentStatus {
         )
         .await?;
 
-        Ok(update_timestamp)
-    }
-
-    /// Persists updated 'update' timestamp/actor data and returns the update timestamp.
-    ///
-    /// # Errors
-    ///
-    /// Return [`Err`] if there was a connection issue to the database.
-    pub async fn record_update(&mut self, ctx: &DalContext) -> ComponentResult<DateTime<Utc>> {
-        let actor_user_pk = Self::user_pk(ctx.history_actor());
-
-        let row = ctx
-            .pg_txn()
-            .query_one(COMPONENT_STATUS_UPDATE_BY_PK, &[&self.pk, &actor_user_pk])
-            .await?;
-        let updated_at = row.try_get("updated_at").map_err(|_| {
-            StandardModelError::ModelMissing("component_statuses".to_string(), self.pk.to_string())
-        })?;
-        let update_timestamp = row.try_get("update_timestamp").map_err(|_| {
-            StandardModelError::ModelMissing("component_statuses".to_string(), self.pk.to_string())
-        })?;
-        self.timestamp.updated_at = updated_at;
-        self.update_timestamp = update_timestamp;
-        self.update_user_pk = actor_user_pk;
+        local_ctx.commit().await?;
 
         Ok(update_timestamp)
     }

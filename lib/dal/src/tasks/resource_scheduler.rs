@@ -85,7 +85,7 @@ impl ResourceScheduler {
     /// schedule them to refresh.
     #[instrument(name = "resource_scheduler.start_task", skip_all, level = "debug")]
     async fn start_task(&self) {
-        let mut interval = time::interval(Duration::from_secs(300));
+        let mut interval = time::interval(Duration::from_secs(90));
         loop {
             interval.tick().await;
             match AssertUnwindSafe(self.run()).catch_unwind().await {

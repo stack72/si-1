@@ -125,6 +125,7 @@ impl JobConsumer for FixesJob {
     async fn run(&self, ctx: &DalContext) -> JobConsumerResult<()> {
         // Mark the batch as started if it has not been yet.
         if !self.started {
+            dbg!("fix not started, marking started", &self.batch_id);
             let mut batch = FixBatch::get_by_id(ctx, &self.batch_id)
                 .await?
                 .ok_or(JobConsumerError::MissingFixBatch(self.batch_id))?;
@@ -132,6 +133,7 @@ impl JobConsumer for FixesJob {
         }
 
         if self.fixes.is_empty() {
+            dbg!("fixes empty, finishing");
             return finish_batch(ctx, self.batch_id).await;
         }
         let fix_item = &self.fixes[0];
@@ -164,17 +166,26 @@ impl JobConsumer for FixesJob {
         })?;
         let workflow_prototype_id = action.workflow_prototype_id();
 
+        dbg!(
+            "got action and workflow prototype",
+            &action,
+            &workflow_prototype_id
+        );
+
         // Run the fix (via the action's workflow prototype).
         let mut fix = Fix::get_by_id(ctx, &fix_item.id)
             .await?
             .ok_or(FixError::MissingFix(fix_item.id))?;
         let run_id = rand::random();
+        dbg!("running fix");
         let resources = fix
             .run(ctx, run_id, workflow_prototype_id, false, false)
             .await?;
         let completion_status: FixCompletionStatus = *fix
             .completion_status()
             .ok_or(FixError::EmptyCompletionStatus)?;
+
+        dbg!("upserting fix resolver");
 
         // Upsert the relevant fix resolver.
         FixResolver::upsert(
@@ -195,6 +206,7 @@ impl JobConsumer for FixesJob {
 
         // Inline dependent values propagation so we can run consecutive fixes that depend on the /root/resource from the previous fix
         if !resources.is_empty() {
+            dbg!("doing DependentValuesUpdate");
             let attribute_value = Component::root_prop_child_attribute_value_for_component(
                 ctx,
                 *component.id(),
@@ -204,9 +216,11 @@ impl JobConsumer for FixesJob {
 
             let mut job = DependentValuesUpdate::new(ctx, vec![*attribute_value.id()]);
             job.set_sync();
+            dbg!("set sync");
             job.run(ctx).await?;
         }
 
+        dbg!("publishing fix return");
         WsEvent::fix_return(
             ctx,
             *fix.id(),
@@ -220,9 +234,12 @@ impl JobConsumer for FixesJob {
         .publish_on_commit(ctx)
         .await?;
 
+        dbg!("fixes remaining", self.fixes.len());
+
         if self.fixes.len() == 1 {
             finish_batch(ctx, self.batch_id).await?;
         } else {
+            dbg!("iterating again instead of finishing the batch");
             ctx.enqueue_job(FixesJob::new_iteration(
                 ctx,
                 self.fixes.iter().skip(1).cloned().collect(),
@@ -262,6 +279,7 @@ impl TryFrom<JobInfo> for FixesJob {
 }
 
 async fn finish_batch(ctx: &DalContext, id: FixBatchId) -> JobConsumerResult<()> {
+    dbg!("finishing batch", &id);
     // Mark the batch as completed.
     let mut batch = FixBatch::get_by_id(ctx, &id)
         .await?

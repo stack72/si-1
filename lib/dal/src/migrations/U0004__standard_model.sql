@@ -167,6 +167,7 @@ DECLARE
     copy_change_set_column_names text;
     debugging_record_info        record;
 BEGIN
+      RAISE WARNING 'update_by_id_v1: pid(%), this_column(%), this_table(%), this_id(%), this_value(%)', pg_backend_pid(), this_column, this_table, this_id, this_value;
     this_visibility_row = visibility_json_to_columns_v1(this_visibility);
     this_tenancy_record = tenancy_json_to_columns_v1(this_tenancy);
 
