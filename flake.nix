@@ -25,28 +25,101 @@
         };
       in
       with pkgs;
+      let
+        sharedBuildInputs = [
+          automake
+          bash
+          coreutils
+          git
+          gnumake
+        ];
+        sharedDepsTargetTarget = [ ];
+
+        rustBuildInputs = [
+          gcc
+          libtool
+          lld
+          openssl
+          pkg-config
+          postgresql_14
+          protobuf
+          rustToolchain
+        ] ++ lib.optionals pkgs.stdenv.isDarwin [
+          libiconv
+          darwin.apple_sdk.frameworks.Security
+        ];
+
+        # Council specific dependencies
+        councilBuildInputs = [
+        ] ++ rustBuildInputs;
+        councilDepsTargetTarget = [ ];
+
+        # Pinga specific dependencies
+        pingaBuildInputs = [
+        ] ++ rustBuildInputs;
+        pingaDepsTargetTarget = [ ];
+
+        # SDF specific dependencies
+        sdfBuildInputs = [
+        ] ++ rustBuildInputs;
+        sdfDepsTargetTarget = [ ];
+
+        # Veritech specific dependencies
+        veritechBuildInputs = [
+          nodejs-18_x
+          nodePackages.pnpm
+          nodePackages.typescript
+        ] ++ rustBuildInputs;
+        veritechDepsTargetTarget = [
+          awscli
+          butane
+          kubeval
+          skopeo
+        ];
+
+        # Web specific dependencies 
+        webBuildInputs = [
+          nodejs-18_x
+          nodePackages.pnpm
+          nodePackages.typescript
+        ];
+        webDepsTargetTarget = [ ];
+      in
+      with stdenv;
       {
+        packages.council = mkDerivation {
+          name = "council";
+          buildInputs = councilBuildInputs;
+          depsTargetTarget = councilDepsTargetTarget;
+          src = self;
+        };
+
+        packages.pinga = mkDerivation {
+          name = "pinga";
+          buildInputs = pingaBuildInputs;
+          depsTargetTarget = pingaDepsTargetTarget;
+        };
+
+        packages.sdf = mkDerivation {
+          name = "sdf";
+          buildInputs = sdfBuildInputs;
+          depsTargetTarget = sdfDepsTargetTarget;
+          src = self;
+        };
+
+        packages.veritech = mkDerivation {
+          name = "veritech";
+          buildInputs = veritechBuildInputs;
+          depsTargetTarget = veritechDepsTargetTarget;
+          src = self;
+        };
+
         devShells.default = mkShell {
           buildInputs = [
-            automake
-            bash
-            coreutils
             docker-compose
-            gcc
-            git
-            gnumake
             jq
-            libtool
-            lld
-            nodejs-18_x
-            nodePackages.pnpm
-            nodePackages.typescript
-            nodePackages.typescript-language-server
-            openssl
             pgcli
-            pkg-config
-            postgresql_14
-            protobuf
+            nodePackages.typescript-language-server
             (rustToolchain.override {
               # This really should be augmenting the extensions, instead of
               # completely overriding them, but since we're not setting up
@@ -54,17 +127,18 @@
               # fine for now.
               extensions = [ "rust-src" "rust-analyzer" ];
             })
-          ] ++ lib.optionals pkgs.stdenv.isDarwin [
-            libiconv
-            darwin.apple_sdk.frameworks.Security
-          ];
-          depsTargetTarget = [
-            awscli
-            butane
-            kubeval
-            nodejs-18_x
-            skopeo
-          ];
+          ] ++ sharedBuildInputs
+          ++ councilBuildInputs
+          ++ pingaBuildInputs
+          ++ sdfBuildInputs
+          ++ veritechBuildInputs
+          ++ webBuildInputs;
+          depsTargetTarget = sharedDepsTargetTarget
+            ++ councilDepsTargetTarget
+            ++ pingaDepsTargetTarget
+            ++ sdfDepsTargetTarget
+            ++ veritechDepsTargetTarget
+            ++ webDepsTargetTarget;
           # This is awful, but necessary (until we find a better way) to
           # be able to `cargo run` anything that compiles against
           # openssl. Without this, ld is unable to find libssl.so.3 and
