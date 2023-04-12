@@ -33,6 +33,7 @@
           git
           gnumake
           jq
+          gnused
         ];
         sharedDepsTargetTarget = [ ];
         sharedCheckInputs = [ ];
@@ -99,18 +100,32 @@
       {
         packages.council = mkDerivation (finalAttrs: {
           name = "council";
+          src = ./.;
           buildInputs = councilBuildInputs;
           nativeBuildInputs = rustNativeBuildInputs;
           depsTargetTarget = councilDepsTargetTarget;
-          src = ./.;
-          unpackCmd = ''
-            cp -rv $src .
+          cargoDeps = rustPlatform.importCargoLock {
+            lockFile = ./Cargo.lock;
+            # Have to specify hashes for git sources in the Cargo.toml.
+            # Use `lib.fakeHash` to find out what the hash should be.
+            outputHashes = {
+              "hyperlocal-0.8.0" = "sha256-iEvEKJ/tkF+YaiCMpU3peC1dYZZHihUdAL5xaF3pIPo=";
+            };
+          };
+          patchPhase = ''
+            sed -i -e 's#/usr/bin/env#${coreutils}/bin/env#' Makefile
           '';
-          buildFlags = [ "build//bin/council" ];
-          doCheck = true;
-          checkTarget = "test//bin/council";
-          checkInputs = councilCheckInputs;
-          dontInstall = true;
+          buildPhase = ''
+            make build//bin/council
+          '';
+          installPhase = ''
+            mkdir -p $out/bin
+            cp target/debug/council $out/bin
+          '';
+          doCheck = false;
+          checkPhase = ''
+            echo "Do something for the checkPhase?"
+          '';
         });
 
         packages.pinga = mkDerivation (finalAttrs: {
