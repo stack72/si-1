@@ -32,9 +32,14 @@
           coreutils
           git
           gnumake
+          jq
         ];
         sharedDepsTargetTarget = [ ];
+        sharedCheckInputs = [ ];
 
+        rustNativeBuildInputs = [
+          rustPlatform.cargoSetupHook
+        ];
         rustBuildInputs = [
           gcc
           libtool
@@ -51,73 +56,114 @@
 
         # Council specific dependencies
         councilBuildInputs = [
-        ] ++ rustBuildInputs;
+        ] ++ sharedBuildInputs ++ rustBuildInputs;
         councilDepsTargetTarget = [ ];
+        councilCheckInputs = [ ] ++ sharedCheckInputs;
 
         # Pinga specific dependencies
         pingaBuildInputs = [
-        ] ++ rustBuildInputs;
+        ] ++ sharedBuildInputs ++ rustBuildInputs;
         pingaDepsTargetTarget = [ ];
+        pingaCheckInputs = [ ] ++ sharedCheckInputs;
 
         # SDF specific dependencies
         sdfBuildInputs = [
-        ] ++ rustBuildInputs;
+        ] ++ sharedBuildInputs ++ rustBuildInputs;
         sdfDepsTargetTarget = [ ];
+        sdfCheckInputs = [ ] ++ sharedCheckInputs;
 
         # Veritech specific dependencies
         veritechBuildInputs = [
           nodejs-18_x
           nodePackages.pnpm
           nodePackages.typescript
-        ] ++ rustBuildInputs;
+        ] ++ sharedBuildInputs ++ rustBuildInputs;
         veritechDepsTargetTarget = [
           awscli
           butane
           kubeval
           skopeo
         ];
+        veritechCheckInputs = [ ] ++ sharedCheckInputs ++ veritechDepsTargetTarget;
 
         # Web specific dependencies 
         webBuildInputs = [
           nodejs-18_x
           nodePackages.pnpm
           nodePackages.typescript
-        ];
+        ] ++ sharedBuildInputs;
         webDepsTargetTarget = [ ];
+        webCheckInputs = [ ] ++ sharedCheckInputs;
       in
       with stdenv;
       {
-        packages.council = mkDerivation {
+        packages.council = mkDerivation (finalAttrs: {
           name = "council";
           buildInputs = councilBuildInputs;
+          nativeBuildInputs = rustNativeBuildInputs;
           depsTargetTarget = councilDepsTargetTarget;
-          src = self;
-        };
+          src = ./.;
+          unpackCmd = ''
+            cp -rv $src .
+          '';
+          buildFlags = [ "build//bin/council" ];
+          doCheck = true;
+          checkTarget = "test//bin/council";
+          checkInputs = councilCheckInputs;
+          dontInstall = true;
+        });
 
-        packages.pinga = mkDerivation {
+        packages.pinga = mkDerivation (finalAttrs: {
           name = "pinga";
           buildInputs = pingaBuildInputs;
           depsTargetTarget = pingaDepsTargetTarget;
-        };
+          src = ./.;
+          buildFlags = [ "build//bin/pinga" ];
+          doCheck = true;
+          checkTarget = "test//bin/pinga";
+          checkInputs = pingaCheckInputs;
+          dontInstall = true;
+        });
 
-        packages.sdf = mkDerivation {
+        packages.sdf = mkDerivation (finalAttrs: {
           name = "sdf";
           buildInputs = sdfBuildInputs;
           depsTargetTarget = sdfDepsTargetTarget;
-          src = self;
-        };
+          src = ./.;
+          buildFlags = [ "build//bin/sdf" ];
+          doCheck = true;
+          checkTarget = "test//bin/sdf";
+          checkInputs = sdfCheckInputs;
+          dontInstall = true;
+        });
 
-        packages.veritech = mkDerivation {
+        packages.veritech = mkDerivation (finalAttrs: {
           name = "veritech";
           buildInputs = veritechBuildInputs;
           depsTargetTarget = veritechDepsTargetTarget;
-          src = self;
-        };
+          src = ./.;
+          buildFlags = [ "build//bin/veritech" ];
+          doCheck = true;
+          checkTarget = "test//bin/veritech";
+          checkInputs = veritechCheckInputs;
+          dontInstall = true;
+        });
+
+        packages.web = mkDerivation (finalAttrs: {
+          name = "web";
+          buildInputs = webBuildInputs;
+          depsTargetTarget = webDepsTargetTarget;
+          src = ./.;
+          buildFlags = [ "build//app/web" ];
+          doCheck = true;
+          checkTarget = "test//app/web";
+          checkInputs = webCheckInputs;
+          dontInstall = true;
+        });
 
         devShells.default = mkShell {
           buildInputs = [
             docker-compose
-            jq
             pgcli
             nodePackages.typescript-language-server
             (rustToolchain.override {
