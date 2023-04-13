@@ -179,8 +179,27 @@
           checkInputs = sdfCheckInputs;
           cargoDeps = rustPlatform.importCargoLock rootCargoLockInfo;
           doCheck = false;
+          unpackPhase = ''
+            pwd
+            echo "sourceRoot = $sourceRoot"
+            ls -al $sourceRoot
+            echo "src = $src"
+            ls -al $src
+            echo "out = $out"
+            ls -al $out
+          '';
+          postUnpack = ''
+            pwd
+            echo "sourceRoot = $sourceRoot"
+            echo "src = $src"
+            echo "out = $out"
+            cp -r $src/.git $sourceRoot/.
+          '';
           patchPhase = ''
+            pwd
             ${fixMakefilePaths}
+            ls -al
+            false
           '';
           buildPhase = ''
             make build//bin/sdf
