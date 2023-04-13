@@ -35,6 +35,7 @@
           jq
           gnused
         ];
+        sharedNativeBuildInputs = [ ];
         sharedDepsTargetTarget = [ ];
         sharedCheckInputs = [ ];
 
@@ -58,18 +59,24 @@
         # Council specific dependencies
         councilBuildInputs = [
         ] ++ sharedBuildInputs ++ rustBuildInputs;
+        councilNativeBuildInputs = [
+        ] ++ sharedNativeBuildInputs ++ rustNativeBuildInputs;
         councilDepsTargetTarget = [ ];
         councilCheckInputs = [ ] ++ sharedCheckInputs;
 
         # Pinga specific dependencies
         pingaBuildInputs = [
         ] ++ sharedBuildInputs ++ rustBuildInputs;
+        pingaNativeBuildInputs = [
+        ] ++ sharedNativeBuildInputs ++ rustNativeBuildInputs;
         pingaDepsTargetTarget = [ ];
         pingaCheckInputs = [ ] ++ sharedCheckInputs;
 
         # SDF specific dependencies
         sdfBuildInputs = [
         ] ++ sharedBuildInputs ++ rustBuildInputs;
+        sdfNativeBuildInputs = [
+        ] ++ sharedNativeBuildInputs ++ rustNativeBuildInputs;
         sdfDepsTargetTarget = [ ];
         sdfCheckInputs = [ ] ++ sharedCheckInputs;
 
@@ -79,6 +86,8 @@
           nodePackages.pnpm
           nodePackages.typescript
         ] ++ sharedBuildInputs ++ rustBuildInputs;
+        veritechNativeBuildInputs = [
+        ] ++ sharedNativeBuildInputs ++ rustNativeBuildInputs;
         veritechDepsTargetTarget = [
           awscli
           butane
@@ -93,8 +102,23 @@
           nodePackages.pnpm
           nodePackages.typescript
         ] ++ sharedBuildInputs;
+        webNativeBuildInputs = [
+        ] ++ sharedNativeBuildInputs;
         webDepsTargetTarget = [ ];
         webCheckInputs = [ ] ++ sharedCheckInputs;
+
+        rootCargoLockInfo = {
+          lockFile = ./Cargo.lock;
+          # Have to specify hashes for git sources in the Cargo.toml.
+          # Use `lib.fakeHash` to find out what the hash should be.
+          outputHashes = {
+            "hyperlocal-0.8.0" = "sha256-iEvEKJ/tkF+YaiCMpU3peC1dYZZHihUdAL5xaF3pIPo=";
+          };
+        };
+
+        fixMakefilePaths = ''
+          sed -i -e 's#/usr/bin/env#${coreutils}/bin/env#' Makefile
+        '';
       in
       with stdenv;
       {
@@ -102,27 +126,21 @@
           name = "council";
           src = ./.;
           buildInputs = councilBuildInputs;
-          nativeBuildInputs = rustNativeBuildInputs;
+          nativeBuildInputs = pingaNativeBuildInputs;
           depsTargetTarget = councilDepsTargetTarget;
-          cargoDeps = rustPlatform.importCargoLock {
-            lockFile = ./Cargo.lock;
-            # Have to specify hashes for git sources in the Cargo.toml.
-            # Use `lib.fakeHash` to find out what the hash should be.
-            outputHashes = {
-              "hyperlocal-0.8.0" = "sha256-iEvEKJ/tkF+YaiCMpU3peC1dYZZHihUdAL5xaF3pIPo=";
-            };
-          };
+          checkInputs = councilCheckInputs;
+          cargoDeps = rustPlatform.importCargoLock rootCargoLockInfo;
+          doCheck = false;
           patchPhase = ''
-            sed -i -e 's#/usr/bin/env#${coreutils}/bin/env#' Makefile
+            ${fixMakefilePaths}
           '';
           buildPhase = ''
             make build//bin/council
           '';
           installPhase = ''
             mkdir -p $out/bin
-            cp target/debug/council $out/bin
+            cp target/debug/council $out/bin/.
           '';
-          doCheck = false;
           checkPhase = ''
             echo "Do something for the checkPhase?"
           '';
@@ -130,50 +148,87 @@
 
         packages.pinga = mkDerivation (finalAttrs: {
           name = "pinga";
-          buildInputs = pingaBuildInputs;
-          depsTargetTarget = pingaDepsTargetTarget;
           src = ./.;
-          buildFlags = [ "build//bin/pinga" ];
-          doCheck = true;
-          checkTarget = "test//bin/pinga";
+          buildInputs = pingaBuildInputs;
+          nativeBuildInputs = pingaNativeBuildInputs;
+          depsTargetTarget = pingaDepsTargetTarget;
           checkInputs = pingaCheckInputs;
-          dontInstall = true;
+          cargoDeps = rustPlatform.importCargoLock rootCargoLockInfo;
+          doCheck = false;
+          patchPhase = ''
+            ${fixMakefilePaths}
+          '';
+          buildPhase = ''
+            make build//bin/pinga
+          '';
+          installPhase = ''
+            mkdir -p $out/bin
+            cp target/debug/pinga $out/bin/.
+          '';
+          checkPhase = ''
+            echo "Do something for the checkPhase?"
+          '';
         });
 
         packages.sdf = mkDerivation (finalAttrs: {
           name = "sdf";
-          buildInputs = sdfBuildInputs;
-          depsTargetTarget = sdfDepsTargetTarget;
           src = ./.;
-          buildFlags = [ "build//bin/sdf" ];
-          doCheck = true;
-          checkTarget = "test//bin/sdf";
+          buildInputs = sdfBuildInputs;
+          nativeBuildInputs = sdfNativeBuildInputs;
+          depsTargetTarget = sdfDepsTargetTarget;
           checkInputs = sdfCheckInputs;
-          dontInstall = true;
+          cargoDeps = rustPlatform.importCargoLock rootCargoLockInfo;
+          doCheck = false;
+          patchPhase = ''
+            ${fixMakefilePaths}
+          '';
+          buildPhase = ''
+            make build//bin/sdf
+          '';
+          installPhase = ''
+            mkdir -p $out/bin
+            cp target/debug/sdf $out/bin/.
+          '';
+          checkPhase = ''
+            echo "Do something for the checkPhase?"
+          '';
         });
 
         packages.veritech = mkDerivation (finalAttrs: {
           name = "veritech";
-          buildInputs = veritechBuildInputs;
-          depsTargetTarget = veritechDepsTargetTarget;
           src = ./.;
-          buildFlags = [ "build//bin/veritech" ];
-          doCheck = true;
-          checkTarget = "test//bin/veritech";
+          buildInputs = veritechBuildInputs;
+          nativeBuildInputs = veritechNativeBuildInputs;
+          depsTargetTarget = veritechDepsTargetTarget;
           checkInputs = veritechCheckInputs;
-          dontInstall = true;
+          cargoDeps = rustPlatform.importCargoLock rootCargoLockInfo;
+          doCheck = false;
+          patchPhase = ''
+            ${fixMakefilePaths}
+          '';
+          buildPhase = ''
+            make build//bin/veritech
+          '';
+          installPhase = ''
+            mkdir -p $out/bin
+            cp target/debug/veritech $out/bin/.
+          '';
+          checkPhase = ''
+            echo "Do something for the checkPhase?"
+          '';
         });
 
         packages.web = mkDerivation (finalAttrs: {
           name = "web";
-          buildInputs = webBuildInputs;
-          depsTargetTarget = webDepsTargetTarget;
           src = ./.;
-          buildFlags = [ "build//app/web" ];
-          doCheck = true;
-          checkTarget = "test//app/web";
+          buildInputs = webBuildInputs;
+          nativeBuildInputs = webNativeBuildInputs;
+          depsTargetTarget = webDepsTargetTarget;
           checkInputs = webCheckInputs;
           dontInstall = true;
+          doCheck = false;
+          buildFlags = [ "build//app/web" ];
+          checkTarget = "test//app/web";
         });
 
         devShells.default = mkShell {
