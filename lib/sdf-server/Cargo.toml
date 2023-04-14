@@ -8,7 +8,7 @@ publish = false
 [dependencies]
 async-trait = "0.1.51"
 axum = { version = "0.6.12", features = ["macros", "ws"] }
-axum-macros = { version = "0.3", optional = true } # enable: cargo build --features axum-macro
+axum-macros = { version = "0.3", optional = true }                      # enable: cargo build --features axum-macro
 base64 = "0.21"
 chrono = { version = "0.4.19", features = ["serde"] }
 convert_case = "0.6.0"
@@ -26,7 +26,7 @@ serde_json = { version = "1.0", features = ["preserve_order"] }
 serde_with = "2.0.0"
 si-data-nats = { path = "../../lib/si-data-nats" }
 si-data-pg = { path = "../../lib/si-data-pg" }
-si-pkg = { path = "../../lib/si-pkg"}
+si-pkg = { path = "../../lib/si-pkg" }
 si-settings = { path = "../../lib/si-settings" }
 si-std = { path = "../../lib/si-std" }
 si-posthog-rs = { path = "../../lib/si-posthog-rs" }
@@ -43,6 +43,7 @@ veritech-client = { path = "../../lib/veritech-client" }
 
 [build-dependencies]
 thiserror = { version = "1.0" }
+vergen = { version = "8.1.1", features = ["cargo", "git", "git2", "rustc"] }
 
 [dev-dependencies]
 dal-test = { path = "../../lib/dal-test" }

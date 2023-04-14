@@ -126,7 +126,7 @@
           name = "council";
           src = ./.;
           buildInputs = councilBuildInputs;
-          nativeBuildInputs = pingaNativeBuildInputs;
+          nativeBuildInputs = councilNativeBuildInputs;
           depsTargetTarget = councilDepsTargetTarget;
           checkInputs = councilCheckInputs;
           cargoDeps = rustPlatform.importCargoLock rootCargoLockInfo;
@@ -135,7 +135,7 @@
             ${fixMakefilePaths}
           '';
           buildPhase = ''
-            make build//bin/council
+            make VERGEN_GIT_SHA="$(cat ./GIT_REVISION)" build//bin/council
           '';
           installPhase = ''
             mkdir -p $out/bin
@@ -159,7 +159,7 @@
             ${fixMakefilePaths}
           '';
           buildPhase = ''
-            make build//bin/pinga
+            make VERGEN_GIT_SHA="$(cat ./GIT_REVISION)" build//bin/pinga
           '';
           installPhase = ''
             mkdir -p $out/bin
@@ -179,30 +179,11 @@
           checkInputs = sdfCheckInputs;
           cargoDeps = rustPlatform.importCargoLock rootCargoLockInfo;
           doCheck = false;
-          unpackPhase = ''
-            pwd
-            echo "sourceRoot = $sourceRoot"
-            ls -al $sourceRoot
-            echo "src = $src"
-            ls -al $src
-            echo "out = $out"
-            ls -al $out
-          '';
-          postUnpack = ''
-            pwd
-            echo "sourceRoot = $sourceRoot"
-            echo "src = $src"
-            echo "out = $out"
-            cp -r $src/.git $sourceRoot/.
-          '';
           patchPhase = ''
-            pwd
             ${fixMakefilePaths}
-            ls -al
-            false
           '';
           buildPhase = ''
-            make build//bin/sdf
+            make VERGEN_GIT_SHA="$(cat ./GIT_REVISION)" build//bin/sdf
           '';
           installPhase = ''
             mkdir -p $out/bin
@@ -226,7 +207,7 @@
             ${fixMakefilePaths}
           '';
           buildPhase = ''
-            make build//bin/veritech
+            make VERGEN_GIT_SHA="$(cat ./GIT_REVISION)" build//bin/veritech
           '';
           installPhase = ''
             mkdir -p $out/bin
@@ -246,7 +227,7 @@
           checkInputs = webCheckInputs;
           dontInstall = true;
           doCheck = false;
-          buildFlags = [ "build//app/web" ];
+          buildFlags = [ "release//app/web" ];
           checkTarget = "test//app/web";
         });
 

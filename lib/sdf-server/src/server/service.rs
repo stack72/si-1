@@ -1,3 +1,4 @@
+pub mod build_information;
 pub mod change_set;
 pub mod component;
 pub mod diagram;
@@ -13,7 +14,6 @@ pub mod status;
 pub mod variant_definition;
 pub mod workflow;
 pub mod ws;
-
 /// A module containing dev routes for local development only.
 #[cfg(debug_assertions)]
 pub mod dev;

@@ -11,7 +11,7 @@ use si_data_pg::PgError;
 use thiserror::Error;
 use tower_http::cors::CorsLayer;
 
-use super::{server::ServerError, state::AppState};
+use super::{server::ServerError, state::AppState, service::build_information::get_build_information};
 
 #[allow(clippy::too_many_arguments)]
 pub fn routes(state: AppState) -> Router {
@@ -20,7 +20,8 @@ pub fn routes(state: AppState) -> Router {
         // root health route is currently pinged by auth portal to check if backend is up and running so we need permissive CORS headers
         .nest(
             "/api/",
-            Router::new().route("/", get(system_status_route).layer(CorsLayer::permissive())),
+            Router::new().route("/", get(system_status_route).layer(CorsLayer::permissive()))
+            .route("/build_information", get(get_build_information)),
         )
         .nest(
             "/api/change_set",
