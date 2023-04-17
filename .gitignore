@@ -16,7 +16,10 @@ vendor/automerge
 deploy/docker-compose.env.yml
 app/web/cypress/screenshots/
 app/web/cypress/videos/
+
+# nix related things
 /GIT_REVISION
+/result
 
 .turbo
 .netlify

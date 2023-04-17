@@ -121,153 +121,203 @@
         '';
       in
       with stdenv;
-      {
-        packages.council = mkDerivation (finalAttrs: {
-          name = "council";
-          src = ./.;
-          buildInputs = councilBuildInputs;
-          nativeBuildInputs = councilNativeBuildInputs;
-          depsTargetTarget = councilDepsTargetTarget;
-          checkInputs = councilCheckInputs;
-          cargoDeps = rustPlatform.importCargoLock rootCargoLockInfo;
-          doCheck = false;
-          patchPhase = ''
-            ${fixMakefilePaths}
-          '';
-          buildPhase = ''
-            make VERGEN_GIT_SHA="$(cat ./GIT_REVISION)" build//bin/council
-          '';
-          installPhase = ''
-            mkdir -p $out/bin
-            cp target/debug/council $out/bin/.
-          '';
-          checkPhase = ''
-            echo "Do something for the checkPhase?"
-          '';
-        });
+      let
+        baseServicePackages = {
+          packages.council = mkDerivation (finalAttrs: {
+            name = "council";
+            src = ./.;
+            buildInputs = councilBuildInputs;
+            nativeBuildInputs = councilNativeBuildInputs;
+            depsTargetTarget = councilDepsTargetTarget;
+            checkInputs = councilCheckInputs;
+            cargoDeps = rustPlatform.importCargoLock rootCargoLockInfo;
+            doCheck = false;
+            patchPhase = ''
+              ${fixMakefilePaths}
+            '';
+            buildPhase = ''
+              make VERGEN_GIT_SHA="$(cat ./GIT_REVISION)" build//bin/council
+            '';
+            installPhase = ''
+              mkdir -p $out/bin
+              cp target/debug/council $out/bin/.
+            '';
+            checkPhase = ''
+              echo "Do something for the checkPhase?"
+            '';
+          });
 
-        packages.pinga = mkDerivation (finalAttrs: {
-          name = "pinga";
-          src = ./.;
-          buildInputs = pingaBuildInputs;
-          nativeBuildInputs = pingaNativeBuildInputs;
-          depsTargetTarget = pingaDepsTargetTarget;
-          checkInputs = pingaCheckInputs;
-          cargoDeps = rustPlatform.importCargoLock rootCargoLockInfo;
-          doCheck = false;
-          patchPhase = ''
-            ${fixMakefilePaths}
-          '';
-          buildPhase = ''
-            make VERGEN_GIT_SHA="$(cat ./GIT_REVISION)" build//bin/pinga
-          '';
-          installPhase = ''
-            mkdir -p $out/bin
-            cp target/debug/pinga $out/bin/.
-          '';
-          checkPhase = ''
-            echo "Do something for the checkPhase?"
-          '';
-        });
+          packages.pinga = mkDerivation (finalAttrs: {
+            name = "pinga";
+            src = ./.;
+            buildInputs = pingaBuildInputs;
+            nativeBuildInputs = pingaNativeBuildInputs;
+            depsTargetTarget = pingaDepsTargetTarget;
+            checkInputs = pingaCheckInputs;
+            cargoDeps = rustPlatform.importCargoLock rootCargoLockInfo;
+            doCheck = false;
+            patchPhase = ''
+              ${fixMakefilePaths}
+            '';
+            buildPhase = ''
+              make VERGEN_GIT_SHA="$(cat ./GIT_REVISION)" build//bin/pinga
+            '';
+            installPhase = ''
+              mkdir -p $out/bin
+              cp target/debug/pinga $out/bin/.
+            '';
+            checkPhase = ''
+              echo "Do something for the checkPhase?"
+            '';
+          });
 
-        packages.sdf = mkDerivation (finalAttrs: {
-          name = "sdf";
-          src = ./.;
-          buildInputs = sdfBuildInputs;
-          nativeBuildInputs = sdfNativeBuildInputs;
-          depsTargetTarget = sdfDepsTargetTarget;
-          checkInputs = sdfCheckInputs;
-          cargoDeps = rustPlatform.importCargoLock rootCargoLockInfo;
-          doCheck = false;
-          patchPhase = ''
-            ${fixMakefilePaths}
-          '';
-          buildPhase = ''
-            make VERGEN_GIT_SHA="$(cat ./GIT_REVISION)" build//bin/sdf
-          '';
-          installPhase = ''
-            mkdir -p $out/bin
-            cp target/debug/sdf $out/bin/.
-          '';
-          checkPhase = ''
-            echo "Do something for the checkPhase?"
-          '';
-        });
+          packages.sdf = mkDerivation (finalAttrs: {
+            name = "sdf";
+            src = ./.;
+            buildInputs = sdfBuildInputs;
+            nativeBuildInputs = sdfNativeBuildInputs;
+            depsTargetTarget = sdfDepsTargetTarget;
+            checkInputs = sdfCheckInputs;
+            cargoDeps = rustPlatform.importCargoLock rootCargoLockInfo;
+            doCheck = false;
+            patchPhase = ''
+              ${fixMakefilePaths}
+            '';
+            buildPhase = ''
+              make VERGEN_GIT_SHA="$(cat ./GIT_REVISION)" build//bin/sdf
+            '';
+            installPhase = ''
+              mkdir -p $out/bin
+              cp target/debug/sdf $out/bin/.
+            '';
+            checkPhase = ''
+              echo "Do something for the checkPhase?"
+            '';
+          });
 
-        packages.veritech = mkDerivation (finalAttrs: {
-          name = "veritech";
-          src = ./.;
-          buildInputs = veritechBuildInputs;
-          nativeBuildInputs = veritechNativeBuildInputs;
-          depsTargetTarget = veritechDepsTargetTarget;
-          checkInputs = veritechCheckInputs;
-          cargoDeps = rustPlatform.importCargoLock rootCargoLockInfo;
-          doCheck = false;
-          patchPhase = ''
-            ${fixMakefilePaths}
-          '';
-          buildPhase = ''
-            make VERGEN_GIT_SHA="$(cat ./GIT_REVISION)" build//bin/veritech
-          '';
-          installPhase = ''
-            mkdir -p $out/bin
-            cp target/debug/veritech $out/bin/.
-          '';
-          checkPhase = ''
-            echo "Do something for the checkPhase?"
-          '';
-        });
+          packages.veritech = mkDerivation (finalAttrs: {
+            name = "veritech";
+            src = ./.;
+            buildInputs = veritechBuildInputs;
+            nativeBuildInputs = veritechNativeBuildInputs;
+            depsTargetTarget = veritechDepsTargetTarget;
+            checkInputs = veritechCheckInputs;
+            cargoDeps = rustPlatform.importCargoLock rootCargoLockInfo;
+            doCheck = false;
+            patchPhase = ''
+              ${fixMakefilePaths}
+            '';
+            buildPhase = ''
+              make VERGEN_GIT_SHA="$(cat ./GIT_REVISION)" build//bin/veritech
+            '';
+            installPhase = ''
+              mkdir -p $out/bin
+              cp target/debug/veritech $out/bin/.
+            '';
+            checkPhase = ''
+              echo "Do something for the checkPhase?"
+            '';
+          });
 
-        packages.web = mkDerivation (finalAttrs: {
-          name = "web";
-          src = ./.;
-          buildInputs = webBuildInputs;
-          nativeBuildInputs = webNativeBuildInputs;
-          depsTargetTarget = webDepsTargetTarget;
-          checkInputs = webCheckInputs;
-          dontInstall = true;
-          doCheck = false;
-          buildFlags = [ "release//app/web" ];
-          checkTarget = "test//app/web";
-        });
+          packages.web = mkDerivation (finalAttrs: {
+            name = "web";
+            src = ./.;
+            buildInputs = webBuildInputs;
+            nativeBuildInputs = webNativeBuildInputs;
+            depsTargetTarget = webDepsTargetTarget;
+            checkInputs = webCheckInputs;
+            dontInstall = true;
+            doCheck = false;
+            buildFlags = [ "release//app/web" ];
+            checkTarget = "test//app/web";
+          });
 
-        devShells.default = mkShell {
-          buildInputs = [
-            docker-compose
-            pgcli
-            nodePackages.typescript-language-server
-            (rustToolchain.override {
-              # This really should be augmenting the extensions, instead of
-              # completely overriding them, but since we're not setting up
-              # any extensions in our rust-toolchain file, it should be
-              # fine for now.
-              extensions = [ "rust-src" "rust-analyzer" ];
-            })
-          ] ++ sharedBuildInputs
-          ++ councilBuildInputs
-          ++ pingaBuildInputs
-          ++ sdfBuildInputs
-          ++ veritechBuildInputs
-          ++ webBuildInputs;
-          depsTargetTarget = sharedDepsTargetTarget
-            ++ councilDepsTargetTarget
-            ++ pingaDepsTargetTarget
-            ++ sdfDepsTargetTarget
-            ++ veritechDepsTargetTarget
-            ++ webDepsTargetTarget;
-          # This is awful, but necessary (until we find a better way) to
-          # be able to `cargo run` anything that compiles against
-          # openssl. Without this, ld is unable to find libssl.so.3 and
-          # libcrypto.so.3.
-          #
-          # If we were packaging this up as a flake, instead of only
-          # using nix for the development environment, we'd be using
-          # wrapProgram with something like
-          # `--prefix LD_LIBRARY_PATH : ${lib.makeLibraryPath [ openssl ]}`
-          # to make sure the things we're compiling are always using the
-          # version of openssl they were compiled against.
-          LD_LIBRARY_PATH = pkgs.lib.makeLibraryPath [ pkgs.openssl ];
+          devShells.default = mkShell {
+            buildInputs = [
+              docker-compose
+              pgcli
+              nodePackages.typescript-language-server
+              (rustToolchain.override {
+                # This really should be augmenting the extensions, instead of
+                # completely overriding them, but since we're not setting up
+                # any extensions in our rust-toolchain file, it should be
+                # fine for now.
+                extensions = [ "rust-src" "rust-analyzer" ];
+              })
+            ] ++ sharedBuildInputs
+            ++ councilBuildInputs
+            ++ pingaBuildInputs
+            ++ sdfBuildInputs
+            ++ veritechBuildInputs
+            ++ webBuildInputs;
+            depsTargetTarget = sharedDepsTargetTarget
+              ++ councilDepsTargetTarget
+              ++ pingaDepsTargetTarget
+              ++ sdfDepsTargetTarget
+              ++ veritechDepsTargetTarget
+              ++ webDepsTargetTarget;
+            # This is awful, but necessary (until we find a better way) to
+            # be able to `cargo run` anything that compiles against
+            # openssl. Without this, ld is unable to find libssl.so.3 and
+            # libcrypto.so.3.
+            #
+            # If we were packaging this up as a flake, instead of only
+            # using nix for the development environment, we'd be using
+            # wrapProgram with something like
+            # `--prefix LD_LIBRARY_PATH : ${lib.makeLibraryPath [ openssl ]}`
+            # to make sure the things we're compiling are always using the
+            # version of openssl they were compiled against.
+            LD_LIBRARY_PATH = pkgs.lib.makeLibraryPath [ pkgs.openssl ];
+          };
         };
-      }
+        serviceDockerImages = {
+          packages.council-docker = dockerTools.buildImage {
+            name = "council";
+            tag = "latest";
+            created = "now";
+
+            copyToRoot = buildEnv {
+              name = "image-root";
+              paths = [ baseServicePackages.packages.council ];
+              pathsToLink = [ "/bin" ];
+            };
+
+            config = {
+              Cmd = [ "/bin/council" ];
+            };
+
+            diskSize = 1024;
+            buildVMMemorySize = 512;
+          };
+        };
+        # From https://stackoverflow.com/questions/54504685/nix-function-to-merge-attributes-records-recursively-and-concatenate-arrays
+        recursiveMerge = attrList:
+          let f = attrPath:
+            with lib;
+            zipAttrsWith (n: values:
+              if tail values == [ ]
+              then head values
+              else if all isList values
+              then unique (concatLists values)
+              else if all isAttrs values
+              then f (attrPath ++ [ n ]) values
+              else last values
+            );
+          in f [ ] attrList;
+      in
+      # We're only defining the docker image packages for "*-linux", since
+        # that's really the only platform we're running docker engine on (macOS
+        # runs docker inside of an x86_64-linux VM).
+      recursiveMerge
+        ([
+          baseServicePackages
+
+        ] ++ lib.optionals
+          (
+            !
+            isDarwin
+          )
+          [ serviceDockerImages ]
+        )
     );
 }
