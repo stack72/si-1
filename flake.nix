@@ -289,6 +289,78 @@
             diskSize = 1024;
             buildVMMemorySize = 512;
           };
+          packages.pinga-docker = dockerTools.buildImage {
+            name = "pinga";
+            tag = "latest";
+            created = "now";
+
+            copyToRoot = buildEnv {
+              name = "image-root";
+              paths = [ baseServicePackages.packages.pinga ];
+              pathsToLink = [ "/bin" ];
+            };
+
+            config = {
+              Cmd = [ "/bin/pinga" ];
+            };
+
+            diskSize = 1024;
+            buildVMMemorySize = 512;
+          };
+          packages.sdf-docker = dockerTools.buildImage {
+            name = "sdf";
+            tag = "latest";
+            created = "now";
+
+            copyToRoot = buildEnv {
+              name = "image-root";
+              paths = [ baseServicePackages.packages.sdf ];
+              pathsToLink = [ "/bin" ];
+            };
+
+            config = {
+              Cmd = [ "/bin/sdf" ];
+            };
+
+            diskSize = 1024;
+            buildVMMemorySize = 512;
+          };
+          packages.veritech-docker = dockerTools.buildImage {
+            name = "veritech";
+            tag = "latest";
+            created = "now";
+
+            copyToRoot = buildEnv {
+              name = "image-root";
+              paths = [ baseServicePackages.packages.veritech ];
+              pathsToLink = [ "/bin" ];
+            };
+
+            config = {
+              Cmd = [ "/bin/veritech" ];
+            };
+
+            diskSize = 1024;
+            buildVMMemorySize = 512;
+          };
+          packages.web-docker = dockerTools.buildImage {
+            name = "web";
+            tag = "latest";
+            created = "now";
+
+            copyToRoot = buildEnv {
+              name = "image-root";
+              paths = [ baseServicePackages.packages.web ];
+              pathsToLink = [ "/bin" ];
+            };
+
+            config = {
+              Cmd = [ "/bin/web" ];
+            };
+
+            diskSize = 1024;
+            buildVMMemorySize = 512;
+          };
         };
         # From https://stackoverflow.com/questions/54504685/nix-function-to-merge-attributes-records-recursively-and-concatenate-arrays
         recursiveMerge = attrList:
@@ -305,19 +377,13 @@
             );
           in f [ ] attrList;
       in
-      # We're only defining the docker image packages for "*-linux", since
+      # We're only defining the docker image packages for "x86_64-linux", since
         # that's really the only platform we're running docker engine on (macOS
         # runs docker inside of an x86_64-linux VM).
-      recursiveMerge
-        ([
-          baseServicePackages
-
-        ] ++ lib.optionals
-          (
-            !
-            isDarwin
-          )
-          [ serviceDockerImages ]
-        )
+      recursiveMerge ([
+        baseServicePackages
+      ] ++ lib.optionals (system == "x86_64-linux") [
+        serviceDockerImages
+      ])
     );
 }
