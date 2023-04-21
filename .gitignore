@@ -20,6 +20,9 @@ app/web/cypress/videos/
 .turbo
 .netlify
 
+# buck2
+/buck-out
+
 # vim temp files
 .*.swp
 .*.swo

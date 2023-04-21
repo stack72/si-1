@@ -1,0 +1,9 @@
+rust_library(
+    name = "council-server",
+    srcs = glob(["src/**/*.rs"]),
+    deps = [
+        "//third-party/rust:serde",
+    ],
+    # crate_root = "src/lib.rs",
+    visibility = ["PUBLIC"],
+)
