@@ -21,8 +21,8 @@
             ref="mergeButtonRef"
             icon="git-merge"
             size="md"
-            loading-text="Merging"
-            label="Merge"
+            :loading-text="getMergingInterstitialLabel"
+            :label="getMergeButtonLabel"
             :request-status="applyChangeSetReqStatus"
             :disabled="statusStoreUpdating"
             @click="applyChangeSet"
@@ -97,7 +97,7 @@
         <VButton
           icon="loader"
           size="md"
-          label="Merging"
+          :label="getMergingInterstitialLabel"
           class="!bg-action-600"
         />
       </template>
@@ -106,9 +106,9 @@
           v-if="changeSetMergeStatus.isPending || wipeRef?.state === 'running'"
           class="gap-2 items-center flex flex-row p-xl min-w-0 w-full justify-center"
         >
-          <Icon name="loader" size="2xl" />
+          <Icon name="loader" size="2xl"/>
           <span class="text-3xl italic truncate">
-            Merging Change Set<template v-if="selectedChangeSetName">
+            {{ getMergingInterstitialLabel }} Change Set<template v-if="selectedChangeSetName">
               "{{ selectedChangeSetName }}"
             </template>
           </span>
@@ -118,7 +118,7 @@
           class="gap-2 items-center flex flex-col"
         >
           <span class="text-3xl">
-            {{ celebrate }} Change Set Merged! {{ celebrate }}
+            {{ celebrate }} Change Set {{ getMergedStateLabel }}! {{ celebrate }}
           </span>
           <span class="text-md italic pt-sm">
             Preparing your recommendations...
@@ -130,9 +130,9 @@
 </template>
 
 <script lang="ts" setup>
-import { computed, onMounted, ref, watch } from "vue";
+import {computed, onMounted, ref, watch} from "vue";
 import * as _ from "lodash-es";
-import { useRoute, useRouter } from "vue-router";
+import {useRoute, useRouter} from "vue-router";
 import JSConfetti from "js-confetti";
 import {
   VButton,
@@ -144,10 +144,11 @@ import {
   Modal,
   useValidatedInputGroup,
 } from "@si/vue-lib/design-system";
-import { useChangeSetsStore } from "@/store/change_sets.store";
-import { useWorkspacesStore } from "@/store/workspaces.store";
-import { useStatusStore } from "@/store/status.store";
+import {useChangeSetsStore} from "@/store/change_sets.store";
+import {useWorkspacesStore} from "@/store/workspaces.store";
+import {useStatusStore} from "@/store/status.store";
 import Wipe from "./Wipe.vue";
+import {isEnabled} from "@/utils/featureFlag";
 
 const wipeRef = ref<InstanceType<typeof Wipe>>();
 const mergeButtonRef = ref();
@@ -159,11 +160,11 @@ const changeSetsStore = useChangeSetsStore();
 const openChangeSets = computed(() => changeSetsStore.openChangeSets);
 const selectedChangeSetId = computed(() => changeSetsStore.selectedChangeSetId);
 const selectedChangeSetName = computed(
-  () => changeSetsStore.selectedChangeSet?.name,
+    () => changeSetsStore.selectedChangeSet?.name,
 );
 
 const changeSetDropdownOptions = computed(() =>
-  _.map(openChangeSets.value, (cs) => ({ value: cs.id, label: cs.name })),
+    _.map(openChangeSets.value, (cs) => ({value: cs.id, label: cs.name})),
 );
 
 const router = useRouter();
@@ -175,7 +176,7 @@ const selectModalRef = ref<InstanceType<typeof Modal>>();
 // The name for a new change set
 const createChangeSetName = ref("");
 
-const { validationState, validationMethods } = useValidatedInputGroup();
+const {validationState, validationMethods} = useValidatedInputGroup();
 
 function onSelectChangeSet(newVal: string | "NEW") {
   if (newVal === "NEW") {
@@ -195,7 +196,7 @@ async function onCreateChangeSet() {
   if (validationMethods.hasError()) return;
 
   const createReq = await changeSetsStore.CREATE_CHANGE_SET(
-    createChangeSetName.value,
+      createChangeSetName.value,
   );
   if (createReq.result.success) {
     // reusing above to navigate to new change set... will probably clean this all up later
@@ -204,10 +205,34 @@ async function onCreateChangeSet() {
 }
 
 const createChangeSetReqStatus =
-  changeSetsStore.getRequestStatus("CREATE_CHANGE_SET");
+    changeSetsStore.getRequestStatus("CREATE_CHANGE_SET");
 
 const applyChangeSetReqStatus =
-  changeSetsStore.getRequestStatus("APPLY_CHANGE_SET");
+    changeSetsStore.getRequestStatus("APPLY_CHANGE_SET");
+
+const getMergeButtonLabel = computed(() => {
+  if (isEnabled("webAppMergeChangeSetBtn")) {
+    return "Stage"
+  }
+
+  return "Merge"
+});
+
+const getMergingInterstitialLabel = computed(() => {
+  if (isEnabled("webAppMergeChangeSetBtn")) {
+    return "Staging"
+  }
+
+  return "Merging"
+});
+
+const getMergedStateLabel = computed(() => {
+  if (isEnabled("webAppMergeChangeSetBtn")) {
+    return "Staged"
+  }
+
+  return "Merged"
+});
 
 const celebrationEmoji = [
   "🎉",
@@ -225,22 +250,22 @@ const celebrationEmoji = [
 const celebrate = ref("🎉");
 let jsConfetti: JSConfetti;
 const confettis = [
-  { emojis: ["🎉"] },
-  { emojis: ["🍿"] },
-  { emojis: ["🤘", "🤘🏻", "🤘🏼", "🤘🏽", "🤘🏾", "🤘🏿"] },
-  { emojis: ["❤️", "🧡", "💛", "💚", "💙", "💜"] },
-  { emojis: ["🍾", "🍷", "🍸", "🍹", "🍺", "🥂", "🍻"] },
-  { emojis: ["🏳️‍🌈", "🏳️‍⚧️", "⚡️", "🌈", "✨", "🔥"] },
+  {emojis: ["🎉"]},
+  {emojis: ["🍿"]},
+  {emojis: ["🤘", "🤘🏻", "🤘🏼", "🤘🏽", "🤘🏾", "🤘🏿"]},
+  {emojis: ["❤️", "🧡", "💛", "💚", "💙", "💜"]},
+  {emojis: ["🍾", "🍷", "🍸", "🍹", "🍺", "🥂", "🍻"]},
+  {emojis: ["🏳️‍🌈", "🏳️‍⚧️", "⚡️", "🌈", "✨", "🔥"]},
 ];
 onMounted(() => {
   jsConfetti = new JSConfetti({
     canvas:
-      (document.getElementById("confetti") as HTMLCanvasElement) || undefined,
+        (document.getElementById("confetti") as HTMLCanvasElement) || undefined,
   });
 });
 
 const changeSetMergeStatus =
-  changeSetsStore.getRequestStatus("APPLY_CHANGE_SET");
+    changeSetsStore.getRequestStatus("APPLY_CHANGE_SET");
 
 // Applies the current change set
 const applyChangeSet = async () => {
@@ -275,22 +300,23 @@ function getGeneratedChangesetName() {
   });
   return `Demo ${latestNum + 1}`;
 }
+
 function openCreateModal() {
   createChangeSetName.value = getGeneratedChangesetName();
   createModalRef.value?.open();
 }
 
 watch(
-  // have to also watch for the modals existing since they may not exist immediately on mount
-  [openChangeSets, createModalRef, selectModalRef],
-  () => {
-    if (!openChangeSets.value.length) {
-      openCreateModal();
-    } else if (!selectedChangeSetId.value) {
-      selectModalRef.value?.open();
-    }
-  },
-  { immediate: true },
+    // have to also watch for the modals existing since they may not exist immediately on mount
+    [openChangeSets, createModalRef, selectModalRef],
+    () => {
+      if (!openChangeSets.value.length) {
+        openCreateModal();
+      } else if (!selectedChangeSetId.value) {
+        selectModalRef.value?.open();
+      }
+    },
+    {immediate: true},
 );
 
 // Navigates to the workspace fix page
@@ -298,12 +324,12 @@ const navigateToFixMode = async () => {
   if (selectedWorkspacePk.value) {
     await router.push({
       name: "workspace-fix",
-      params: { workspacePk: selectedWorkspacePk.value },
+      params: {workspacePk: selectedWorkspacePk.value},
     });
   } else {
     // Fallback to the workspace list page in the case we can't yet determine
     // the current workspace (likely due to an observable race).
-    await router.push({ name: "workspace-index" });
+    await router.push({name: "workspace-index"});
   }
 };
 
