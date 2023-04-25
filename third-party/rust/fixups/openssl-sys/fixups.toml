@@ -1,0 +1,17 @@
+cargo_env = true
+extra_deps = [
+  ":cc-1.0.79",
+  # ":openssl-src-111.25.3+1.1.1t",
+  ":pkg-config-0.3.26",
+  ":vcpkg-0.2.15",
+]
+extra_srcs = ["build/**/*"]
+features = ["vendored"]
+
+[[buildscript]]
+[buildscript.build]
+[buildscript.build.env]
+OPT_LEVEL = "0"
+
+[[buildscript]]
+[buildscript.rustc_flags]

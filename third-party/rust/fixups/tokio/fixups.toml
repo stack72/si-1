@@ -1,11 +1,11 @@
 omit_targets = []
-extra_srcs = []
+extra_srcs = ["src/**/*.rs"]
 src_referenced_dirs = []
 rustc_flags = []
 cfgs = []
 features = []
 omit_features = []
-extra_deps = [":autocfg"]
+extra_deps = [":autocfg-1.1.0"]
 omit_deps = []
 cargo_env = false
 

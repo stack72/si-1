@@ -15,13 +15,9 @@ path = "top/main.rs"
 # List of packages to be imported, with version constraints, features
 # and all options Cargo supports.
 [dependencies]
-derive_builder = { version = "0.12" }
-futures = "0.3.13"
-serde = { version = "1", features = ["derive"] }
-serde_json = { version = "1.0.64", features = ["preserve_order"] }
-thiserror = "1.0.24"
-tokio = { version = "1.12.0", features = ["full"] }
-ulid = { version = "1", features = ["serde"] }
+serde = { version = "1.0.123", features = ["derive"] }
+
+[build-dependencies]
 
 # Local patches - typically git references
 [patch.crates-io]

@@ -7,7 +7,7 @@ features = []
 omit_features = []
 extra_deps = []
 omit_deps = []
-cargo_env = true
+cargo_env = false
 
 [env]
 

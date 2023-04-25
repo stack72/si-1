@@ -1,0 +1,7 @@
+rust_library(
+  name = "si-std",
+  srcs = glob(["src/**/*.rs"]),
+  edition = "2021",
+  deps = ["//third-party/rust:serde"],
+  visibility = ["PUBLIC"],
+)

@@ -1,0 +1,2 @@
+extra_deps = [":libc-0.2.142"]
+cargo_env = true

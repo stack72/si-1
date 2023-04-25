@@ -1,19 +1,7 @@
-omit_targets = []
-extra_srcs = []
-src_referenced_dirs = []
-rustc_flags = []
-cfgs = []
-features = []
-omit_features = []
-extra_deps = []
-omit_deps = []
-cargo_env = false
-
 [env]
+TYPENUM_BUILD_CONSTS = "consts.rs"
+TYPENUM_BUILD_OP = "op.rs"
 
 [[buildscript]]
-[buildscript.build]
-
-[extra_mapped_srcs]
-
-[platform_fixup]
+[buildscript.gen_srcs]
+files = ["consts.rs", "op.rs"]

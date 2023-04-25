@@ -5,7 +5,7 @@ rustc_flags = []
 cfgs = []
 features = []
 omit_features = []
-extra_deps = [":version_check-0.9.4"]
+extra_deps = [":cc-1.0.79", ":pkg-config-0.3.26"]
 omit_deps = []
 cargo_env = false
 

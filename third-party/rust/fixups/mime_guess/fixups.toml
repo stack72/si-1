@@ -5,14 +5,16 @@ rustc_flags = []
 cfgs = []
 features = []
 omit_features = []
-extra_deps = [":version_check-0.9.4"]
+extra_deps = [":unicase-2.6.0"]
 omit_deps = []
 cargo_env = false
 
 [env]
+OUT_DIR = "generated"
 
 [[buildscript]]
-[buildscript.build]
+[buildscript.gen_srcs.mapped]
+"mime_types_generated.rs" = "generated/mime_types_generated.rs"
 
 [extra_mapped_srcs]
 
