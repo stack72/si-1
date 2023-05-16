@@ -2,6 +2,7 @@ import chai from 'chai';
 import chaiSubset from 'chai-subset';
 // import chalk from 'chalk';
 import nock from 'nock';
+import { closeDbPool } from '../../src/db/connection';
 import { cleanupInMemoryCache } from '../../src/lib/cache';
 import { prisma } from '../../src/main';
 import { routesLoaded } from '../../src/routes';
@@ -27,6 +28,7 @@ export async function testSuiteBefore() {
 export async function testSuiteAfter() {
   // TODO: might want this to be part of a more generic cleanup/shutdown system
   await prisma.$disconnect();
+  await closeDbPool();
   cleanupInMemoryCache();
 
   // nockAfterAll();

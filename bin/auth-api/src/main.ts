@@ -17,6 +17,7 @@ import { detectClientIp } from "./lib/client-ip";
 import { CustomAppContext, CustomAppState } from "./custom-state";
 
 import './lib/posthog';
+import { closeDbPool } from "./db/connection";
 
 export const prisma = new PrismaClient();
 
@@ -51,5 +52,6 @@ if (process.env.NODE_ENV !== 'test') {
   } catch (err) {
     console.log('ERROR!', err);
     await prisma.$disconnect();
+    await closeDbPool();
   }
 }

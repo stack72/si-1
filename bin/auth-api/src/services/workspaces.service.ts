@@ -1,9 +1,15 @@
-import { InstanceEnvType, PrismaClient, User } from '@prisma/client';
+import { InstanceEnvType, PrismaClient } from '@prisma/client';
 import { ulid } from 'ulidx';
 import { tracker } from '../lib/tracker';
-import { UserId } from "./users.service";
+// import { UserId } from "./users.service";
 
-export type WorkspaceId = string;
+import { db } from '../db/connection';
+import { WorkspaceId, workspacesTable } from '../db/schema/workspaces.schema';
+import { User, UserId, usersTable } from '../db/schema/users.schema';
+
+import { eq } from 'drizzle-orm';
+
+// export type WorkspaceId = string;
 
 // this will become a model when we implement db
 // export type Workspace = {
@@ -17,36 +23,37 @@ export type WorkspaceId = string;
 //   createdAt: ISODateTimeString;
 // };
 
-const prisma = new PrismaClient();
-
 // TODO: replace all this with actual db calls...
 export async function getWorkspaceById(id: WorkspaceId) {
-  return await prisma.workspace.findUnique({ where: { id } });
+  const results = await db.select()
+    .from(workspacesTable)
+    .where(eq(workspacesTable.id, id))
+    .limit(1);
+  return results?.[0];
+  // return await prisma.workspace.findUnique({ where: { id } });
 }
 
 export async function createWorkspace(creatorUser: User) {
-  const newWorkspace = await prisma.workspace.create({
-    data: {
-      id: ulid(),
-      instanceEnvType: InstanceEnvType.LOCAL,
-      instanceUrl: 'http://localhost:8080',
-      displayName: `${creatorUser.nickname}'s dev workspace`,
-      creatorUserId: creatorUser.id,
-    },
-  });
-  tracker.trackEvent(creatorUser, 'create_workspace', {
-    workspaceId: newWorkspace.id,
-    // TODO: track env type and other data when it becomes useful
-  });
+  const result = await db.insert(workspacesTable).values({
+    id: ulid() as WorkspaceId,
+    instanceEnvType: InstanceEnvType.LOCAL,
+    instanceUrl: 'http://localhost:8080',
+    displayName: `${creatorUser.nickname}'s dev workspace`,
+    creatorUserId: creatorUser.id,
+  }).returning();
+  const newWorkspace = result[0];
+
+  // tracker.trackEvent(creatorUser, 'create_workspace', {
+  //   workspaceId: newWorkspace.id,
+  //   // TODO: track env type and other data when it becomes useful
+  // });
 
   return newWorkspace;
 }
 
 export async function getUserWorkspaces(userId: UserId) {
-  const workspaces = await prisma.workspace.findMany({
-    where: {
-      creatorUserId: userId,
-    },
-  });
-  return workspaces;
+  const results = await db.select()
+    .from(workspacesTable)
+    .where(eq(workspacesTable.creatorUserId, userId));
+  return results;
 }
