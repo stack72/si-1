@@ -20,6 +20,7 @@
         type="textarea"
         placeholder="Give this module a short description..."
       />
+      <!--
       <div class="flex flex-row items-end gap-sm">
         <VormInput
           v-model="selectedSchemaVariant"
@@ -50,6 +51,13 @@
           </div>
         </li>
       </ul>
+      -->
+      <VueMultiselect
+        v-model="selectedSchemaVariants"
+        multiple
+        :options="schemaVariantOptions"
+        :customLabel="(opt: Option) => opt.label"
+      />
       <ErrorMessage
         v-if="exportPkgReqStatus.isError"
         :requestStatus="exportPkgReqStatus"
@@ -83,13 +91,16 @@ import {
   ErrorMessage,
 } from "@si/vue-lib/design-system";
 import { format as dateFormat } from "date-fns";
+import VueMultiselect from "vue-multiselect";
 import { useComponentsStore } from "@/store/components.store";
 import { useModuleStore, PkgExportRequest } from "@/store/module.store";
+import { Option } from "../SelectMenu.vue";
 
 const moduleStore = useModuleStore();
 const componentStore = useComponentsStore();
 const modalRef = ref<InstanceType<typeof Modal>>();
 const exportPkgReqStatus = moduleStore.getRequestStatus("EXPORT_MODULE");
+const selectedSchemaVariants = ref<Option[]>([]);
 
 const props = withDefaults(
   defineProps<{
@@ -112,28 +123,21 @@ const emptyExportPackageReq: PkgExportRequest = {
   schemaVariants: [],
 };
 
-const selectedSchemaVariant = ref();
 const schemaVariantsForExport = ref<string[]>([]);
 
 const packageExportReq = ref<PkgExportRequest>({ ...emptyExportPackageReq });
 
-const addSchemaVariantToExport = () => {
-  schemaVariantsForExport.value.push(selectedSchemaVariant.value);
-  selectedSchemaVariant.value = undefined;
-};
-
-const removeSchemaVariant = (idToRemove: string) => {
-  schemaVariantsForExport.value = schemaVariantsForExport.value.filter(
-    (svId) => svId !== idToRemove,
-  );
-};
-
 const { open: openModal, close } = useModal(modalRef);
 const open = () => {
-  selectedSchemaVariant.value = undefined;
+  selectedSchemaVariants.value = [];
   schemaVariantsForExport.value = [];
   if (props.preSelectedSchemaVariantId) {
-    schemaVariantsForExport.value = [props.preSelectedSchemaVariantId];
+    const preselectedOption = schemaVariantOptions.value.find(
+      (opt) => opt.value === props.preSelectedSchemaVariantId,
+    );
+    if (preselectedOption) {
+      selectedSchemaVariants.value = [preselectedOption];
+    }
   }
   packageExportReq.value = { ...emptyExportPackageReq };
   openModal();
@@ -141,15 +145,11 @@ const open = () => {
 
 defineExpose({ open, close });
 
-const schemaVariantsById = computed(() => componentStore.schemaVariantsById);
-
 const schemaVariantOptions = computed(() =>
-  componentStore.schemaVariants
-    .filter((sv) => !schemaVariantsForExport.value.includes(sv.id))
-    .map((sv) => ({
-      label: sv.schemaName,
-      value: sv.id,
-    })),
+  componentStore.schemaVariants.map((sv) => ({
+    label: sv.schemaName,
+    value: sv.id,
+  })),
 );
 
 const getVersionTimestamp = () => dateFormat(Date.now(), "yyyyMMddkkmmss");
@@ -164,7 +164,7 @@ const enableExportButton = computed(() => {
   ) {
     return false;
   }
-  if (schemaVariantsForExport.value?.length === 0) {
+  if (selectedSchemaVariants.value.length === 0) {
     return false;
   }
 
@@ -177,7 +177,9 @@ const exportPkg = async () => {
   }
   const result = await moduleStore.EXPORT_MODULE({
     ...packageExportReq.value,
-    schemaVariants: schemaVariantsForExport.value,
+    schemaVariants: selectedSchemaVariants.value.map(
+      (opt) => opt.value as string,
+    ),
   });
   if (result.result.success) {
     close();
@@ -185,3 +187,5 @@ const exportPkg = async () => {
   }
 };
 </script>
+
+<style src="vue-multiselect/dist/vue-multiselect.css"></style>
